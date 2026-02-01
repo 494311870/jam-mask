@@ -1,8 +1,11 @@
-[gd_resource type="TileSet" load_steps=6 format=3 uid="uid://fw5n5hbuwk1v"]
+[gd_resource type="TileSet" load_steps=7 format=3 uid="uid://fw5n5hbuwk1v"]
 
 [ext_resource type="Texture2D" uid="uid://dchpc81dacnd6" path="res://art/merged.png" id="1_ly4hs"]
 [ext_resource type="PackedScene" uid="uid://b6nr5j53ecfuc" path="res://scenes/elements/target_point.tscn" id="2_uwxoe"]
 [ext_resource type="PackedScene" uid="uid://cgnjiyf8tygns" path="res://scenes/elements/player.tscn" id="3_gtqbq"]
+
+[sub_resource type="TileMapPattern" id="TileMapPattern_gtqbq"]
+tile_data = PackedInt32Array(0, 131073, 0, 65536, 1, 0, 131072, 1, 0)
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ly4hs"]
 texture = ExtResource("1_ly4hs")
@@ -31,3 +34,4 @@ sources/1 = SubResource("TileSetAtlasSource_ly4hs")
 sources/6 = SubResource("TileSetScenesCollectionSource_gtqbq")
 tile_proxies/source_level = [2, 3]
 tile_proxies/coords_level = [[0, Vector2i(0, 0)], [1, Vector2i(0, 0)], [2, Vector2i(0, 0)], [5, Vector2i(0, 0)], [3, Vector2i(0, 0)], [5, Vector2i(1, 0)], [4, Vector2i(0, 0)], [5, Vector2i(2, 0)], [7, Vector2i(0, 0)], [9, Vector2i(0, 0)], [8, Vector2i(0, 0)], [9, Vector2i(1, 0)], [9, Vector2i(0, 0)], [1, Vector2i(1, 0)], [9, Vector2i(1, 0)], [1, Vector2i(2, 0)]]
+pattern_0 = SubResource("TileMapPattern_gtqbq")
