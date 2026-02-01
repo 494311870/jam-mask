@@ -114,8 +114,15 @@ func center_level() -> void:
 	var viewport_size = get_viewport_rect().size
 	
 	# 考虑 UI 遮挡后的可用区域 (左侧预览 220px, 顶部信息条 60px)
-	var ui_offset_left = 220.0
-	var ui_offset_top = 60.0
+	var ui_offset_left = 0.0
+	var ui_offset_top = 0.0
+	
+	if viewfinder_system and not viewfinder_system.active_shapes.is_empty():
+		# ui_offset_left = 220.0
+		ui_offset_left = 0
+		# ui_offset_top = 60.0
+		ui_offset_top = 0
+
 	
 	# 计算在剩余可用空间内居中所需的偏移
 	# 公式: target = (viewport + ui_offset - content_size) / 2 - content_pos

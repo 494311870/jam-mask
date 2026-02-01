@@ -48,6 +48,7 @@ signal shapes_changed
 @onready var btn_move: Button = %BtnMove
 @onready var label_status: Label = %LabelStatus
 @onready var tip_ui: TipUI = %TipUI
+@onready var ui_container: Control = $ViewfinderUI/Control
 
 func _ready() -> void:
 	if terrain_layer or elements_layer:
@@ -66,12 +67,15 @@ func setup_layers(terrain: TileMapLayer, elements: TileMapLayer, shapes: Array[S
 	occupied_cells.clear()
 	active_shape_caches.clear()
 	active_shape_resources.clear()
+	active_shapes = []
 	
 	if not shapes.is_empty():
-		active_shapes = []
 		active_shape_resources = shapes.duplicate()
 		for s in shapes:
 			active_shapes.append(s.cells)
+	
+	if ui_container:
+		ui_container.visible = not active_shapes.is_empty()
 	
 	active_shape_caches.resize(active_shapes.size())
 	active_shape_caches.fill(null)
@@ -103,9 +107,9 @@ func _on_mode_changed():
 			if active_shapes.is_empty():
 				label_status.text = "已无可用的取景器"
 			else:
-				label_status.text = "(鼠标) 移动取景器    (左键) 记录地形    (Q/E) 切换取景器" % [active_shape_index + 1, active_shapes.size()]
+				label_status.text = "(鼠标) 移动取景器    (左键) 记录地形    (Q/E) 切换取景器"
 		Mode.MOVE:
-			label_status.text = "(左键) 放置地形    (右键) 重新选择地形" % [active_shape_index + 1, active_shapes.size()]
+			label_status.text = "(左键) 放置地形    (右键) 重新选择地形"
 	
 	# Update button visual state (optional: modulate or theme)
 	btn_interact.release_focus()
