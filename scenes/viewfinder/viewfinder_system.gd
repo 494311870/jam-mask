@@ -172,17 +172,24 @@ func _capture_selection():
 	copied_tiles = new_tiles
 	tip_ui.show_tip("选取成功：已捕获 " + str(copied_tiles.size()) + " 个图块")
 
+func _can_place_at(target_pos: Vector2i) -> bool:
+	if copied_tiles.is_empty():
+		return false
+	
+	for tile in copied_tiles:
+		var pos = target_pos + tile.offset
+		if terrain_layer.get_cell_source_id(pos) == -1:
+			return false
+	return true
+
 func _paste_selection(target_pos: Vector2i):
 	if copied_tiles.is_empty():
 		tip_ui.show_tip("放置失败：没有已选取的内容")
 		return
 	
-	# 检查目标区域是否包含空白
-	for tile in copied_tiles:
-		var pos = target_pos + tile.offset
-		if terrain_layer.get_cell_source_id(pos) == -1:
-			tip_ui.show_tip("放置失败：不在范围内")
-			return
+	if not _can_place_at(target_pos):
+		tip_ui.show_tip("放置失败：不在范围内")
+		return
 
 	for tile in copied_tiles:
 		var pos = target_pos + tile.offset
@@ -236,7 +243,10 @@ func _on_overlay_draw():
 			var rect = selection_rect
 			rect.position = map_pos
 			var outline_rect = _map_to_world_rect(rect)
-			draw_rect_outline(outline_rect, Color.RED, 3.0) # Thicker and Red
+			
+			var is_valid = _can_place_at(map_pos)
+			var border_color = Color.GREEN if is_valid else Color.RED
+			draw_rect_outline(outline_rect, border_color, 3.0) 
 
 func _update_preview_layer_cells():
 	preview_layer.clear()
