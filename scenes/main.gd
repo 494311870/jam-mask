@@ -112,8 +112,13 @@ func center_level() -> void:
 	# 获取视口（窗口）的显示区域大小
 	var viewport_size = get_viewport_rect().size
 	
-	# 计算让内容居中所需的偏移
-	var target_pos = (viewport_size - content_size_px) / 2.0 - content_pos_px
+	# 考虑 UI 遮挡后的可用区域 (左侧预览 220px, 顶部信息条 60px)
+	var ui_offset_left = 220.0
+	var ui_offset_top = 60.0
+	
+	# 计算在剩余可用空间内居中所需的偏移
+	# 公式: target = (viewport + ui_offset - content_size) / 2 - content_pos
+	var target_pos = (viewport_size + Vector2(ui_offset_left, ui_offset_top) - content_size_px) / 2.0 - content_pos_px
 	
 	# 应用到容器
 	current_level_container.position = target_pos
