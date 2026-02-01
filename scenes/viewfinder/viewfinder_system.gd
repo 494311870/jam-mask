@@ -170,12 +170,27 @@ func _capture_selection():
 	
 	selection_rect = new_rect
 	copied_tiles = new_tiles
+	tip_ui.show_tip("选取成功：已捕获 " + str(copied_tiles.size()) + " 个图块")
 
 func _paste_selection(target_pos: Vector2i):
+	if copied_tiles.is_empty():
+		tip_ui.show_tip("放置失败：没有已选取的内容")
+		return
+	
+	# 检查目标区域是否包含空白
+	for tile in copied_tiles:
+		var pos = target_pos + tile.offset
+		if terrain_layer.get_cell_source_id(pos) == -1:
+			tip_ui.show_tip("放置失败：不在范围内")
+			return
+
 	for tile in copied_tiles:
 		var pos = target_pos + tile.offset
 		terrain_layer.set_cell(pos, tile.source_id, tile.atlas_coords, tile.alternative_tile)
+	
 	tip_ui.show_tip("放置成功")
+	copied_tiles.clear()
+	current_mode = Mode.INTERACT
 
 func _process(_delta: float) -> void:
 	if current_mode == Mode.MOVE:
