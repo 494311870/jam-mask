@@ -27,16 +27,22 @@ var overlay_layer: Node2D
 @onready var label_status: Label = %LabelStatus
 
 func _ready() -> void:
-	if not terrain_layer:
-		terrain_layer = get_node_or_null("%Terrain")
-	if not elements_layer:
-		elements_layer = get_parent().get_node_or_null("Elements")
-	
-	_setup_preview_layer()
+	if terrain_layer or elements_layer:
+		setup_layers(terrain_layer, elements_layer)
 	
 	btn_interact.pressed.connect(func(): current_mode = Mode.INTERACT)
 	btn_select.pressed.connect(func(): current_mode = Mode.SELECT)
 	btn_move.pressed.connect(func(): current_mode = Mode.MOVE)
+
+## 设置当前操作的地图层
+func setup_layers(terrain: TileMapLayer, elements: TileMapLayer) -> void:
+	terrain_layer = terrain
+	elements_layer = elements
+	
+	if terrain_layer:
+		_setup_preview_layer()
+	
+	current_mode = Mode.INTERACT
 
 func _on_mode_changed():
 	is_selecting = false
@@ -174,22 +180,27 @@ func _process(_delta: float) -> void:
 			preview_layer.global_position = world_pos - Vector2(terrain_layer.tile_set.tile_size) / 2.0
 
 func _setup_preview_layer():
-	preview_layer = TileMapLayer.new()
-	add_child(preview_layer)
-	preview_layer.tile_set = terrain_layer.tile_set
+	if not preview_layer:
+		preview_layer = TileMapLayer.new()
+		add_child(preview_layer)
+	
+	if terrain_layer:
+		preview_layer.tile_set = terrain_layer.tile_set
+		
 	preview_layer.modulate = Color(1, 1, 1, 1) # Slightly transparent
 	preview_layer.hide()
 	
-	overlay_layer = Node2D.new()
-	add_child(overlay_layer)
-	overlay_layer.draw.connect(_on_overlay_draw)
+	if not overlay_layer:
+		overlay_layer = Node2D.new()
+		add_child(overlay_layer)
+		overlay_layer.draw.connect(_on_overlay_draw)
 
 func _on_overlay_draw():
 	if current_mode == Mode.SELECT:
 		if is_selecting:
 			var rect = _get_selection_rect()
-			var draw_rect = _map_to_world_rect(rect)
-			draw_rect_outline(draw_rect, Color.YELLOW, 2.0)
+			var outline_rect = _map_to_world_rect(rect)
+			draw_rect_outline(outline_rect, Color.YELLOW, 2.0)
 	
 	elif current_mode == Mode.MOVE:
 		var mouse_pos = get_global_mouse_position()
@@ -198,8 +209,8 @@ func _on_overlay_draw():
 			# Preview where it will be pasted
 			var rect = selection_rect
 			rect.position = map_pos
-			var draw_rect = _map_to_world_rect(rect)
-			draw_rect_outline(draw_rect, Color.RED, 3.0) # Thicker and Red
+			var outline_rect = _map_to_world_rect(rect)
+			draw_rect_outline(outline_rect, Color.RED, 3.0) # Thicker and Red
 
 func _update_preview_layer_cells():
 	preview_layer.clear()

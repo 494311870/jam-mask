@@ -1,14 +1,16 @@
 extends MapElement
 
-var _terrain_layer : TileMapLayer
+@onready var _viewfinder_system : ViewfinderSystem = get_tree().get_first_node_in_group("viewfinder_system")
 
+var _fixed_layer : TileMapLayer
+var _terrain_layer : TileMapLayer
 
 func _ready():
 	super._ready()
 
-	_terrain_layer = get_parent().get_node("%Terrain")
+	_fixed_layer = get_parent().get_node("../Fixed")
+	_terrain_layer = get_parent().get_node("../Terrain")
 
-@onready var _viewfinder_system : ViewfinderSystem = get_tree().get_first_node_in_group("viewfinder_system")
 
 func _input(event):
 	if _viewfinder_system and _viewfinder_system.current_mode != ViewfinderSystem.Mode.INTERACT:
@@ -55,24 +57,20 @@ func check_win_condition():
 			var target_tile = tile_map_layer.local_to_map(tile_map_layer.to_local(target.global_position))
 			
 			if player_tile == target_tile:
-				print("到达终点！准备重载场景/进入下一关...")
-				# 这里可以根据需要切换场景
-				# get_tree().reload_current_scene() 
-				# 或者切换到下一关
-				# get_tree().change_scene_to_file("res://scenes/level_2.tscn")
-				# 暂时先用重载当前场景作为演示
-				call_deferred("next_level")
-
-
-func next_level():
-	# 这里的逻辑可以根据你的关卡管理系统来写
-	get_tree().reload_current_scene()
+				print("到达终点！准备进入下一关...")
+				# 调用 Main 的进入下一关逻辑
+				var main = get_tree().get_first_node_in_group("game_manager")
+				if main and main.has_method("next_level"):
+					main.call_deferred("next_level")
 
 
 func is_obstacle(coords: Vector2i) -> bool:
-	var tile_data = _terrain_layer.get_cell_tile_data(coords)
-	if tile_data:
-		var is_obs = tile_data.get_custom_data("obstacle")
-		if is_obs:
-			return true
+	# 检查固定层和地形层
+	for layer in [_fixed_layer, _terrain_layer]:
+		var tile_data = layer.get_cell_tile_data(coords)
+		if tile_data:
+			var is_obs = tile_data.get_custom_data("obstacle")
+			if is_obs:
+				return true
+
 	return false

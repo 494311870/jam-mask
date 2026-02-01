@@ -1,9 +1,23 @@
-[gd_scene load_steps=2 format=3 uid="uid://dvk3jg56dxbmp"]
+[gd_scene load_steps=3 format=3 uid="uid://dvk3jg56dxbmp"]
 
+[ext_resource type="Script" uid="uid://bfh2pqvdsqb0l" path="res://scenes/main.gd" id="1_main"]
 [ext_resource type="PackedScene" uid="uid://bfvtfqii1ytgf" path="res://scenes/viewfinder/viewfinder_system.tscn" id="2_vfs"]
 
 [node name="Main" type="Node2D"]
+script = ExtResource("1_main")
 
 [node name="CurrentLevel" type="Node2D" parent="."]
 
 [node name="ViewfinderSystem" parent="." instance=ExtResource("2_vfs")]
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+layer = -1
+visible = false
+
+[node name="ColorRect" type="ColorRect" parent="CanvasLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
