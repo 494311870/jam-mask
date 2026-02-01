@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="SelectorShape" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="SelectorShape" load_steps=2 format=3 uid="uid://c6vubesvdqhm2"]
 
 [ext_resource type="Script" path="res://scripts/selector_shape.gd" id="1_script"]
 
