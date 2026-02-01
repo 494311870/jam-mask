@@ -314,11 +314,18 @@ func _can_place_at(target_pos: Vector2i) -> bool:
 	if copied_tiles.is_empty():
 		return false
 	
+	var player = get_tree().get_first_node_in_group("player")
+	var player_map_pos = Vector2i(-999, -999)
+	if player:
+		player_map_pos = terrain_layer.local_to_map(terrain_layer.to_local(player.global_position))
+	
 	for tile in copied_tiles:
 		var pos = target_pos + tile.offset
 		if terrain_layer.get_cell_source_id(pos) == -1:
 			return false
 		if occupied_cells.has(pos):
+			return false
+		if pos == player_map_pos:
 			return false
 	return true
 
