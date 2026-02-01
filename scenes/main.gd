@@ -9,6 +9,7 @@ extends Node2D
 
 var level_paths: Array[String] = []
 var current_level_index: int = -1
+var current_level_path: String = ""
 
 func _ready() -> void:
 	# 注册到组，方便 Player 调用
@@ -44,6 +45,14 @@ func next_level() -> void:
 	var next_index = (current_level_index + 1) % level_paths.size()
 	load_level_by_index(next_index)
 
+## 重启当前关卡
+func restart_level() -> void:
+	print("[Main] 重启当前关卡: ", current_level_path)
+	if current_level_path != "":
+		load_level(current_level_path)
+	elif current_level_index != -1:
+		load_level_by_index(current_level_index)
+
 ## 按索引加载关卡
 func load_level_by_index(index: int) -> void:
 	if index < 0 or index >= level_paths.size():
@@ -54,6 +63,9 @@ func load_level_by_index(index: int) -> void:
 
 ## 动态加载关卡
 func load_level(level_path: String) -> void:
+	print("[Main] 加载关卡: ", level_path)
+	current_level_path = level_path
+	
 	# 清理当前关卡并重置容器位置
 	current_level_container.position = Vector2.ZERO
 	for child in current_level_container.get_children():
