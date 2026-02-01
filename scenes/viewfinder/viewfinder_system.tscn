@@ -1,8 +1,13 @@
-[gd_scene load_steps=4 format=3 uid="uid://bfvtfqii1ytgf"]
+[gd_scene load_steps=6 format=3 uid="uid://bfvtfqii1ytgf"]
 
 [ext_resource type="Script" uid="uid://dy6si7stf21j6" path="res://scenes/viewfinder/viewfinder_system.gd" id="1_vfs"]
 [ext_resource type="PackedScene" uid="uid://bl6qtwotfl4wm" path="res://scenes/viewfinder/tip_ui.tscn" id="2_tt4el"]
 [ext_resource type="PackedScene" uid="uid://cx6q8p7v8n2y" path="res://scenes/viewfinder/shape_inventory_ui.tscn" id="3_inv"]
+
+[sub_resource type="Theme" id="Theme_070pm"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_070pm"]
+bg_color = Color(0, 0, 0, 0.8)
 
 [node name="ViewfinderSystem" type="Node2D" groups=["viewfinder_system"]]
 script = ExtResource("1_vfs")
@@ -28,6 +33,7 @@ layout_mode = 1
 offset_top = 80.0
 offset_right = 220.0
 offset_bottom = -20.0
+theme = SubResource("Theme_070pm")
 
 [node name="Panel" type="Panel" parent="ViewfinderUI/Control"]
 custom_minimum_size = Vector2(0, 60)
@@ -35,6 +41,7 @@ layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
 grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_070pm")
 
 [node name="HBoxContainer2" type="HBoxContainer" parent="ViewfinderUI/Control/Panel"]
 layout_mode = 1
@@ -76,6 +83,7 @@ size_flags_horizontal = 3
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 23)
 layout_mode = 2
+theme_override_font_sizes/font_size = 20
 text = "当前模式: 交互 (可以使用方向键移动)"
 horizontal_alignment = 1
 vertical_alignment = 1

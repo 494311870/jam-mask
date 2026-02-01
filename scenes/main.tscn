@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://dvk3jg56dxbmp"]
+[gd_scene load_steps=10 format=3 uid="uid://dvk3jg56dxbmp"]
 
 [ext_resource type="Script" uid="uid://bfh2pqvdsqb0l" path="res://scenes/main.gd" id="1_main"]
 [ext_resource type="PackedScene" uid="uid://bfvtfqii1ytgf" path="res://scenes/viewfinder/viewfinder_system.tscn" id="2_vfs"]
@@ -8,6 +8,13 @@
 [ext_resource type="Script" uid="uid://dqhtv8otmp3dc" path="res://scenes/main_ui.gd" id="6_main_ui"]
 [ext_resource type="Texture2D" uid="uid://bwhskl0nr5eqt" path="res://art/ui/DoubleCircleArrows1.png" id="7_restart_icon"]
 [ext_resource type="Texture2D" uid="uid://bfd3yfqef0wpd" path="res://art/ui/Music-On.png" id="8_music_on"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tipki"]
+bg_color = Color(0, 0, 0, 0.8)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_main")
@@ -128,14 +135,14 @@ mouse_filter = 2
 
 [node name="Panel" type="Panel" parent="MainUI/HintContainer"]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_tipki")
 
 [node name="LabelHint" type="Label" parent="MainUI/HintContainer"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 6
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 22
 text = "Level Hint"
 horizontal_alignment = 1
 vertical_alignment = 1
