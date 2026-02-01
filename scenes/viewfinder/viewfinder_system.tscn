@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://bfvtfqii1ytgf"]
+[gd_scene load_steps=3 format=3 uid="uid://bfvtfqii1ytgf"]
 
 [ext_resource type="Script" uid="uid://dy6si7stf21j6" path="res://scenes/viewfinder/viewfinder_system.gd" id="1_vfs"]
+[ext_resource type="PackedScene" uid="uid://bl6qtwotfl4wm" path="res://scenes/viewfinder/tip_ui.tscn" id="2_tt4el"]
 
 [node name="ViewfinderSystem" type="Node2D" groups=["viewfinder_system"]]
 script = ExtResource("1_vfs")
@@ -65,3 +66,6 @@ layout_mode = 2
 text = "当前模式: 交互 (可以使用方向键移动)"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="TipUI" parent="ViewfinderUI" instance=ExtResource("2_tt4el")]
+unique_name_in_owner = true

@@ -47,7 +47,8 @@ func load_level_by_index(index: int) -> void:
 
 ## 动态加载关卡
 func load_level(level_path: String) -> void:
-	# 清理当前关卡
+	# 清理当前关卡并重置容器位置
+	current_level_container.position = Vector2.ZERO
 	for child in current_level_container.get_children():
 		child.queue_free()
 	
@@ -68,41 +69,62 @@ func load_level(level_path: String) -> void:
 
 ## 居中显示当前关卡
 func center_level() -> void:
-	var level = current_level_container.get_child(0) if current_level_container.get_child_count() > 0 else null
+	# 查找容器中的最后一个孩子（即刚加载的关卡，避免 queue_free 延迟导致取到旧关卡）
+	var level = current_level_container.get_child(current_level_container.get_child_count() - 1) if current_level_container.get_child_count() > 0 else null
 	if not level:
 		return
 		
-	var terrain = level.get_node_or_null("Terrain") as TileMapLayer
-	if not terrain:
+	# 查找所有 TileMapLayer 以确定地图总边界
+	var layers = level.find_children("", "TileMapLayer", true, false)
+	if layers.is_empty():
 		return
 		
-	var used_rect = terrain.get_used_rect()
-	if used_rect.size == Vector2i.ZERO:
-		return
-		
-	# 使用最直观的坐标计算方式
-	var tile_size = Vector2(terrain.tile_set.tile_size)
+	var combined_rect: Rect2i
+	var has_rect = false
 	
-	# 关卡内容在 Terrain 节点坐标系下的像素矩形范围
-	# used_rect.position 是起始格子坐标，used_rect.size 是格子数量
-	var content_pos_px = Vector2(used_rect.position) * tile_size
-	var content_size_px = Vector2(used_rect.size) * tile_size
+	for layer in layers:
+		if layer is TileMapLayer:
+			var rect = layer.get_used_rect()
+			if rect.size == Vector2i.ZERO:
+				continue
+			if not has_rect:
+				combined_rect = rect
+				has_rect = true
+			else:
+				combined_rect = combined_rect.merge(rect)
+	
+	if not has_rect:
+		return
+		
+	# 获取第一个有内容的层的图块大小（假设所有层一致）
+	var first_layer: TileMapLayer = null
+	for layer in layers:
+		if layer is TileMapLayer and layer.tile_set:
+			first_layer = layer
+			break
+			
+	if not first_layer:
+		return
+		
+	var tile_size = Vector2(first_layer.tile_set.tile_size)
+	
+	# 关卡内容在 Level 节点坐标系下的像素矩形范围
+	var content_pos_px = Vector2(combined_rect.position) * tile_size
+	var content_size_px = Vector2(combined_rect.size) * tile_size
 	
 	# 获取视口（窗口）的显示区域大小
 	var viewport_size = get_viewport_rect().size
 	
-	# 计算让内容居中所需的偏移：
-	# 1. (viewport_size - content_size_px) / 2.0 是让一个 0,0 起始的矩形居中的位置
-	# 2. 减去 content_pos_px 是为了抵消地图瓦片本身可能存在的坐标偏移（比如从 10,10 开始画的地图）
+	# 计算让内容居中所需的偏移
 	var target_pos = (viewport_size - content_size_px) / 2.0 - content_pos_px
 	
 	# 应用到容器
 	current_level_container.position = target_pos
 	
-	# 打印调试信息（可选，如果还不对可以检查此输出）
+	# 打印调试信息
 	print("Viewport Size: ", viewport_size)
-	print("Content Rect: ", content_pos_px, " size: ", content_size_px)
-	print("Calculated Position: ", target_pos)
+	print("Level Bounds: ", combined_rect, " (px: ", content_pos_px, ", ", content_size_px, ")")
+	print("Calculated Container Position: ", target_pos)
 
 func _setup_systems(level: Node2D) -> void:
 	var terrain = level.get_node_or_null("Terrain")

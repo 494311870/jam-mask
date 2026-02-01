@@ -25,6 +25,7 @@ var overlay_layer: Node2D
 @onready var btn_select: Button = %BtnSelect
 @onready var btn_move: Button = %BtnMove
 @onready var label_status: Label = %LabelStatus
+@onready var tip_ui: TipUI = %TipUI
 
 func _ready() -> void:
 	if terrain_layer or elements_layer:
@@ -143,28 +144,38 @@ func draw_rect_outline(rect: Rect2, color: Color, width: float):
 	overlay_layer.draw_polyline(local_points, color, width, true)
 
 func _capture_selection():
-	selection_rect = _get_selection_rect()
-	copied_tiles.clear()
-	for x in range(selection_rect.position.x, selection_rect.end.x):
-		for y in range(selection_rect.position.y, selection_rect.end.y):
-			var coords = Vector2i(x, y)
-			var source_id = terrain_layer.get_cell_source_id(coords)
-			var atlas_coords = terrain_layer.get_cell_atlas_coords(coords)
-			var alternative_tile = terrain_layer.get_cell_alternative_tile(coords)
+	var new_rect: Rect2i = _get_selection_rect()
+	var new_tiles: Array = []
+	
+	for x in range(new_rect.position.x, new_rect.end.x):
+		for y in range(new_rect.position.y, new_rect.end.y):
+			var coords: Vector2i = Vector2i(x, y)
+			var source_id: int = terrain_layer.get_cell_source_id(coords)
 			
-			copied_tiles.append({
-				"offset": coords - selection_rect.position,
+			# 如果该位置没有图块，则整个选取无效
+			if source_id == -1:
+				copied_tiles.clear()
+				tip_ui.show_tip("选取无效：必须包含完整地形")
+				return
+			
+			var atlas_coords: Vector2i = terrain_layer.get_cell_atlas_coords(coords)
+			var alternative_tile: int = terrain_layer.get_cell_alternative_tile(coords)
+			
+			new_tiles.append({
+				"offset": coords - new_rect.position,
 				"source_id": source_id,
 				"atlas_coords": atlas_coords,
 				"alternative_tile": alternative_tile
 			})
-	print("Captured ", copied_tiles.size(), " tiles.")
+	
+	selection_rect = new_rect
+	copied_tiles = new_tiles
 
 func _paste_selection(target_pos: Vector2i):
 	for tile in copied_tiles:
 		var pos = target_pos + tile.offset
 		terrain_layer.set_cell(pos, tile.source_id, tile.atlas_coords, tile.alternative_tile)
-	print("Pasted tiles at ", target_pos)
+	tip_ui.show_tip("放置成功")
 
 func _process(_delta: float) -> void:
 	if current_mode == Mode.MOVE:
