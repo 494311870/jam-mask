@@ -41,19 +41,28 @@ func refresh() -> void:
 
 func _create_item_ui(shape_res: SelectorShape, cache: Variant, is_selected: bool) -> Control:
 	var panel = PanelContainer.new()
+	var style: StyleBoxFlat = StyleBoxFlat.new()
+	style.bg_color = Color(0.15, 0.15, 0.15, 0.9)
+	style.corner_radius_top_left = 5
+	style.corner_radius_top_right = 5
+	style.corner_radius_bottom_left = 5
+	style.corner_radius_bottom_right = 5
 	
 	if is_selected:
-		# 从主题中获取被选中的样式，或者手动设置
-		var selected_style = theme.get_stylebox("panel", "PanelContainer").duplicate()
-		selected_style.bg_color = Color(0.2, 0.2, 0.2, 0.9)
-		selected_style.border_width_right = 4
-		selected_style.border_color = Color.GOLD
-		panel.add_theme_stylebox_override("panel", selected_style)
+		style.bg_color = Color(0.2, 0.2, 0.2, 0.9)
+		style.border_width_right = 4
+		style.border_color = Color.GOLD
+	panel.add_theme_stylebox_override("panel", style)
 	
 	var margin = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 8)
+	margin.add_theme_constant_override("margin_right", 8)
+	margin.add_theme_constant_override("margin_top", 8)
+	margin.add_theme_constant_override("margin_bottom", 8)
 	panel.add_child(margin)
 	
 	var hbox = HBoxContainer.new()
+	hbox.set("theme_override_constants/separation", 12)
 	margin.add_child(hbox)
 	
 	# 形状图形预览
@@ -62,9 +71,21 @@ func _create_item_ui(shape_res: SelectorShape, cache: Variant, is_selected: bool
 	preview_rect.draw.connect(func(): _draw_shape_preview(preview_rect, shape_res.cells, cache))
 	hbox.add_child(preview_rect)
 	
+	# var vbox = VBoxContainer.new()
+	# vbox.size_flags_horizontal = SIZE_EXPAND_FILL
+	# hbox.add_child(vbox)
+	
+	# 形状名称
+	# var label = Label.new()
+	# label.text = shape_res.shape_name
+	# label.add_theme_font_size_override("font_size", 14)
+	# if is_selected:
+	# 	label.add_theme_color_override("font_color", Color.GOLD)
+	# vbox.add_child(label)
+	
 	# 状态/内容描述
 	var status_label = Label.new()
-	status_label.add_theme_font_size_override("font_size", 14)
+	status_label.add_theme_font_size_override("font_size", 12)
 	if cache:
 		status_label.text = "已记录地形"
 		status_label.add_theme_color_override("font_color", Color.SPRING_GREEN)
