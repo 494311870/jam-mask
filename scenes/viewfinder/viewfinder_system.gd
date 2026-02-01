@@ -3,6 +3,16 @@ extends Node2D
 
 enum Mode { INTERACT, SELECT, MOVE }
 
+const SHAPES: Array[Array] = [
+	[Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0)], # I
+	[Vector2i(0, 0), Vector2i(1, 0), Vector2i(0, 1), Vector2i(1, 1)], # O
+	[Vector2i(1, 0), Vector2i(0, 1), Vector2i(1, 1), Vector2i(2, 1)], # T
+	[Vector2i(0, 0), Vector2i(0, 1), Vector2i(1, 1), Vector2i(2, 1)], # J
+	[Vector2i(2, 0), Vector2i(0, 1), Vector2i(1, 1), Vector2i(2, 1)], # L
+	[Vector2i(1, 0), Vector2i(2, 0), Vector2i(0, 1), Vector2i(1, 1)], # S
+	[Vector2i(0, 0), Vector2i(1, 0), Vector2i(1, 1), Vector2i(2, 1)]  # Z
+]
+
 @export var terrain_layer: TileMapLayer
 @export var elements_layer: TileMapLayer
 
@@ -11,9 +21,7 @@ var current_mode: Mode = Mode.INTERACT:
 		current_mode = value
 		_on_mode_changed()
 
-var selection_start: Vector2i
-var selection_end: Vector2i
-var is_selecting: bool = false
+var active_shape_index: int = 0
 
 # Array of TileDataInfo or similar
 var copied_tiles: Array = []
@@ -46,7 +54,6 @@ func setup_layers(terrain: TileMapLayer, elements: TileMapLayer) -> void:
 	current_mode = Mode.INTERACT
 
 func _on_mode_changed():
-	is_selecting = false
 	queue_redraw()
 	if overlay_layer:
 		overlay_layer.queue_redraw()
@@ -62,7 +69,7 @@ func _on_mode_changed():
 		Mode.INTERACT:
 			label_status.text = "当前模式: 交互 (可以使用方向键移动)"
 		Mode.SELECT:
-			label_status.text = "选取模式: 鼠标左键框选地形"
+			label_status.text = "选取模式: 鼠标左键点击捕获地形 (Q/E 切换形状)"
 		Mode.MOVE:
 			label_status.text = "移动模式: 鼠标左键点击放置地形 (右键取消)"
 	
@@ -79,6 +86,13 @@ func _input(event: InputEvent) -> void:
 			current_mode = Mode.SELECT
 		elif event.keycode == KEY_3:
 			current_mode = Mode.MOVE
+		elif current_mode == Mode.SELECT:
+			if event.keycode == KEY_Q:
+				active_shape_index = (active_shape_index - 1 + SHAPES.size()) % SHAPES.size()
+				_update_overlay()
+			elif event.keycode == KEY_E:
+				active_shape_index = (active_shape_index + 1) % SHAPES.size()
+				_update_overlay()
 
 	if current_mode == Mode.INTERACT:
 		return
@@ -87,36 +101,25 @@ func _input(event: InputEvent) -> void:
 		var mouse_pos = get_global_mouse_position()
 		var map_pos = terrain_layer.local_to_map(terrain_layer.to_local(mouse_pos))
 
-		if event.button_index == MOUSE_BUTTON_LEFT:
+		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 			if current_mode == Mode.SELECT:
-				if event.pressed:
-					is_selecting = true
-					selection_start = map_pos
-					selection_end = map_pos
-				else:
-					is_selecting = false
-					_capture_selection()
+				var current_shape: Array = SHAPES[active_shape_index]
+				_capture_selection(map_pos, current_shape)
 			
 			elif current_mode == Mode.MOVE:
-				if event.pressed:
-					_paste_selection(map_pos)
+				_paste_selection(map_pos)
 		
 		elif event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
 			# Cancel or switch back to INTERACT
 			current_mode = Mode.INTERACT
 
-	elif event is InputEventMouseMotion and is_selecting:
-		var mouse_pos = get_global_mouse_position()
-		var map_pos = terrain_layer.local_to_map(terrain_layer.to_local(mouse_pos))
-		selection_end = map_pos
-		queue_redraw()
-		if overlay_layer:
-			overlay_layer.queue_redraw()
+	elif event is InputEventMouseMotion:
+		_update_overlay()
 
-func _get_selection_rect() -> Rect2i:
-	var start = Vector2i(min(selection_start.x, selection_end.x), min(selection_start.y, selection_end.y))
-	var end = Vector2i(max(selection_start.x, selection_end.x), max(selection_start.y, selection_end.y))
-	return Rect2i(start, end - start + Vector2i.ONE)
+func _update_overlay():
+	queue_redraw()
+	if overlay_layer:
+		overlay_layer.queue_redraw()
 
 func _map_to_world_rect(rect: Rect2i) -> Rect2:
 	var top_left = terrain_layer.to_global(terrain_layer.map_to_local(rect.position))
@@ -128,6 +131,32 @@ func _map_to_world_rect(rect: Rect2i) -> Rect2:
 	bottom_right += Vector2(tile_size) / 2.0
 	
 	return Rect2(top_left, bottom_right - top_left)
+
+func _draw_shape_outline(center_map_pos: Vector2i, offsets: Array, color: Color, width: float):
+	var shape_set = {}
+	for o in offsets:
+		shape_set[o] = true
+	
+	for o in offsets:
+		var cell_pos = center_map_pos + o
+		var rect = _map_to_world_rect(Rect2i(cell_pos, Vector2i.ONE))
+		
+		# 检查四个方向，如果没有邻居，则绘制该方向的线条
+		# Top
+		if not shape_set.has(o + Vector2i(0, -1)):
+			_draw_overlay_line(Vector2(rect.position.x, rect.position.y), Vector2(rect.end.x, rect.position.y), color, width)
+		# Bottom
+		if not shape_set.has(o + Vector2i(0, 1)):
+			_draw_overlay_line(Vector2(rect.position.x, rect.end.y), Vector2(rect.end.x, rect.end.y), color, width)
+		# Left
+		if not shape_set.has(o + Vector2i(-1, 0)):
+			_draw_overlay_line(Vector2(rect.position.x, rect.position.y), Vector2(rect.position.x, rect.end.y), color, width)
+		# Right
+		if not shape_set.has(o + Vector2i(1, 0)):
+			_draw_overlay_line(Vector2(rect.end.x, rect.position.y), Vector2(rect.end.x, rect.end.y), color, width)
+
+func _draw_overlay_line(from: Vector2, to: Vector2, color: Color, width: float):
+	overlay_layer.draw_line(overlay_layer.to_local(from), overlay_layer.to_local(to), color, width, true)
 
 func draw_rect_outline(rect: Rect2, color: Color, width: float):
 	var points = PackedVector2Array([
@@ -143,34 +172,42 @@ func draw_rect_outline(rect: Rect2, color: Color, width: float):
 		local_points.append(overlay_layer.to_local(p))
 	overlay_layer.draw_polyline(local_points, color, width, true)
 
-func _capture_selection():
-	var new_rect: Rect2i = _get_selection_rect()
+func _capture_selection(center_map_pos: Vector2i, shape: Array) -> void:
+	var offsets = shape
 	var new_tiles: Array = []
 	
-	for x in range(new_rect.position.x, new_rect.end.x):
-		for y in range(new_rect.position.y, new_rect.end.y):
-			var coords: Vector2i = Vector2i(x, y)
-			var source_id: int = terrain_layer.get_cell_source_id(coords)
-			
-			# 如果该位置没有图块，则整个选取无效
-			if source_id == -1:
-				copied_tiles.clear()
-				tip_ui.show_tip("选取无效：必须包含完整地形")
-				return
-			
-			var atlas_coords: Vector2i = terrain_layer.get_cell_atlas_coords(coords)
-			var alternative_tile: int = terrain_layer.get_cell_alternative_tile(coords)
-			
-			new_tiles.append({
-				"offset": coords - new_rect.position,
-				"source_id": source_id,
-				"atlas_coords": atlas_coords,
-				"alternative_tile": alternative_tile
-			})
+	var min_p = Vector2i(999, 999)
+	var max_p = Vector2i(-999, -999)
 	
-	selection_rect = new_rect
+	for offset in offsets:
+		var coords: Vector2i = center_map_pos + offset
+		var source_id: int = terrain_layer.get_cell_source_id(coords)
+		
+		# 如果该形状覆盖的任一位置没有图块，则整个选取无效
+		if source_id == -1:
+			copied_tiles.clear()
+			tip_ui.show_tip("选取无效：必须在该形状覆盖的所有位置都有地形")
+			return
+		
+		min_p.x = min(min_p.x, offset.x)
+		min_p.y = min(min_p.y, offset.y)
+		max_p.x = max(max_p.x, offset.x)
+		max_p.y = max(max_p.y, offset.y)
+		
+		var atlas_coords: Vector2i = terrain_layer.get_cell_atlas_coords(coords)
+		var alternative_tile: int = terrain_layer.get_cell_alternative_tile(coords)
+		
+		new_tiles.append({
+			"offset": offset,
+			"source_id": source_id,
+			"atlas_coords": atlas_coords,
+			"alternative_tile": alternative_tile
+		})
+	
+	selection_rect = Rect2i(min_p, max_p - min_p + Vector2i.ONE)
 	copied_tiles = new_tiles
 	tip_ui.show_tip("选取成功：已捕获 " + str(copied_tiles.size()) + " 个图块")
+	current_mode = Mode.MOVE
 
 func _can_place_at(target_pos: Vector2i) -> bool:
 	if copied_tiles.is_empty():
@@ -230,23 +267,23 @@ func _setup_preview_layer():
 
 func _on_overlay_draw():
 	if current_mode == Mode.SELECT:
-		if is_selecting:
-			var rect = _get_selection_rect()
-			var outline_rect = _map_to_world_rect(rect)
-			draw_rect_outline(outline_rect, Color.YELLOW, 2.0)
+		var mouse_pos = get_global_mouse_position()
+		var map_pos = terrain_layer.local_to_map(terrain_layer.to_local(mouse_pos))
+		var offsets = SHAPES[active_shape_index]
+		_draw_shape_outline(map_pos, offsets, Color.YELLOW, 2.0)
 	
 	elif current_mode == Mode.MOVE:
 		var mouse_pos = get_global_mouse_position()
 		var map_pos = terrain_layer.local_to_map(terrain_layer.to_local(mouse_pos))
 		if copied_tiles.size() > 0:
-			# Preview where it will be pasted
-			var rect = selection_rect
-			rect.position = map_pos
-			var outline_rect = _map_to_world_rect(rect)
-			
 			var is_valid = _can_place_at(map_pos)
 			var border_color = Color.GREEN if is_valid else Color.RED
-			draw_rect_outline(outline_rect, border_color, 3.0) 
+			
+			var offsets = []
+			for tile in copied_tiles:
+				offsets.append(tile.offset)
+			
+			_draw_shape_outline(map_pos, offsets, border_color, 2.5) 
 
 func _update_preview_layer_cells():
 	preview_layer.clear()
