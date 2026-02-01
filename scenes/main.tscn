@@ -1,14 +1,13 @@
-[gd_scene load_steps=10 format=3 uid="uid://dvk3jg56dxbmp"]
+[gd_scene load_steps=9 format=3 uid="uid://dvk3jg56dxbmp"]
 
 [ext_resource type="Script" uid="uid://bfh2pqvdsqb0l" path="res://scenes/main.gd" id="1_main"]
 [ext_resource type="PackedScene" uid="uid://bfvtfqii1ytgf" path="res://scenes/viewfinder/viewfinder_system.tscn" id="2_vfs"]
+[ext_resource type="Texture2D" uid="uid://b1omy6ru24okp" path="res://art/背景图无文字.png" id="3_tipki"]
 [ext_resource type="Texture2D" uid="uid://cwyw7tog31de7" path="res://art/ui/WasdKeys1.png" id="4_jyhfs"]
 [ext_resource type="AudioStream" uid="uid://dmib4rfpoqlrv" path="res://art/audio/DavidKBD - Tropical Pack - 03 - Heartbeats - Bossanova.ogg" id="5_tbgi4"]
 [ext_resource type="Script" uid="uid://dqhtv8otmp3dc" path="res://scenes/main_ui.gd" id="6_main_ui"]
 [ext_resource type="Texture2D" uid="uid://bwhskl0nr5eqt" path="res://art/ui/DoubleCircleArrows1.png" id="7_restart_icon"]
 [ext_resource type="Texture2D" uid="uid://bfd3yfqef0wpd" path="res://art/ui/Music-On.png" id="8_music_on"]
-[ext_resource type="PackedScene" uid="uid://c6y7v8u8q4b6v" path="res://scenes/main_menu.tscn" id="9_menu"]
-[ext_resource type="PackedScene" uid="uid://b8y7v8u8q4b6v" path="res://scenes/level_selection.tscn" id="10_levels"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_main")
@@ -18,21 +17,22 @@ script = ExtResource("1_main")
 [node name="ViewfinderSystem" parent="." instance=ExtResource("2_vfs")]
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
-layer = -1
-visible = false
+layer = -5
 
-[node name="ColorRect" type="ColorRect" parent="CanvasLayer"]
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 1)
+texture = ExtResource("3_tipki")
+expand_mode = 1
 
 [node name="CanvasLayer2" type="CanvasLayer" parent="."]
 layer = -1
 
 [node name="TextureRect" type="TextureRect" parent="CanvasLayer2"]
+visible = false
 custom_minimum_size = Vector2(256, 256)
 anchors_preset = 3
 anchor_left = 1.0
