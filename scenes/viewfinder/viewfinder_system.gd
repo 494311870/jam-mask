@@ -62,7 +62,7 @@ func setup_layers(terrain: TileMapLayer, elements: TileMapLayer, shapes: Array[S
 		for s in shapes:
 			active_shapes.append(s.cells)
 	else:
-		active_shapes = DEFAULT_SHAPES
+		active_shapes = DEFAULT_SHAPES.duplicate(true)
 	
 	active_shape_index = 0
 	
@@ -87,7 +87,10 @@ func _on_mode_changed():
 		Mode.INTERACT:
 			label_status.text = "当前模式: 交互 (可以使用方向键移动)"
 		Mode.SELECT:
-			label_status.text = "选取模式: 鼠标左键点击捕获地形 (Q/E 切换形状)"
+			if active_shapes.is_empty():
+				label_status.text = "选取模式: 已无可用形状"
+			else:
+				label_status.text = "选取模式: 鼠标左键点击捕获地形 (Q/E 切换形状)"
 		Mode.MOVE:
 			label_status.text = "移动模式: 鼠标左键点击放置地形 (右键取消)"
 	
@@ -95,16 +98,24 @@ func _on_mode_changed():
 	btn_interact.release_focus()
 	btn_select.release_focus()
 	btn_move.release_focus()
+	
+	btn_select.disabled = active_shapes.is_empty()
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed:
 		if event.keycode == KEY_1:
 			current_mode = Mode.INTERACT
 		elif event.keycode == KEY_2:
-			current_mode = Mode.SELECT
+			if not active_shapes.is_empty():
+				current_mode = Mode.SELECT
+			else:
+				tip_ui.show_tip("选取失败：已无可用形状")
 		elif event.keycode == KEY_3:
 			current_mode = Mode.MOVE
 		elif current_mode == Mode.SELECT:
+			if active_shapes.is_empty():
+				return
+				
 			if event.keycode == KEY_Q:
 				active_shape_index = (active_shape_index - 1 + active_shapes.size()) % active_shapes.size()
 				_update_overlay()
@@ -121,6 +132,9 @@ func _input(event: InputEvent) -> void:
 
 		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 			if current_mode == Mode.SELECT:
+				if active_shapes.is_empty():
+					tip_ui.show_tip("选取失败：没有可用的形状")
+					return
 				var current_shape: Array = active_shapes[active_shape_index]
 				_capture_selection(map_pos, current_shape)
 			
@@ -263,6 +277,14 @@ func _paste_selection(target_pos: Vector2i):
 	pasted_shapes.append(new_pasted_shape)
 	
 	tip_ui.show_tip("放置成功")
+	
+	# 每个形状只能使用一次
+	active_shapes.remove_at(active_shape_index)
+	if not active_shapes.is_empty():
+		active_shape_index = active_shape_index % active_shapes.size()
+	else:
+		active_shape_index = 0
+		
 	copied_tiles.clear()
 	current_mode = Mode.INTERACT
 
@@ -301,6 +323,9 @@ func _on_overlay_draw():
 		_draw_shape_outline(Vector2i.ZERO, shape, Color.YELLOW, 2.0)
 
 	if current_mode == Mode.SELECT:
+		if active_shapes.is_empty():
+			return
+			
 		var mouse_pos = get_global_mouse_position()
 		var map_pos = terrain_layer.local_to_map(terrain_layer.to_local(mouse_pos))
 		var offsets = active_shapes[active_shape_index]
