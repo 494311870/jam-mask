@@ -34,6 +34,8 @@ var overlay_layer: Node2D
 var pasted_shapes: Array[Array] = []
 ## 记录已被粘贴内容占据的格子坐标，用于快速查找 (Vector2i -> bool)
 var occupied_cells: Dictionary = {}
+## 缓存每个形状对应的已取景内容 (与 active_shapes 索引一一对应)
+var active_shape_caches: Array = []
 
 @onready var btn_interact: Button = %BtnInteract
 @onready var btn_select: Button = %BtnSelect
@@ -56,6 +58,7 @@ func setup_layers(terrain: TileMapLayer, elements: TileMapLayer, shapes: Array[S
 	
 	pasted_shapes.clear()
 	occupied_cells.clear()
+	active_shape_caches.clear()
 	
 	if not shapes.is_empty():
 		active_shapes = []
@@ -63,6 +66,9 @@ func setup_layers(terrain: TileMapLayer, elements: TileMapLayer, shapes: Array[S
 			active_shapes.append(s.cells)
 	else:
 		active_shapes = DEFAULT_SHAPES.duplicate(true)
+	
+	active_shape_caches.resize(active_shapes.size())
+	active_shape_caches.fill(null)
 	
 	active_shape_index = 0
 	
@@ -85,14 +91,14 @@ func _on_mode_changed():
 
 	match current_mode:
 		Mode.INTERACT:
-			label_status.text = "当前模式: 交互 (可以使用方向键移动)"
+			label_status.text = "当前模式: 交互 (Q/E 进入选取模式)"
 		Mode.SELECT:
 			if active_shapes.is_empty():
 				label_status.text = "选取模式: 已无可用形状"
 			else:
-				label_status.text = "选取模式: 鼠标左键点击捕获地形 (Q/E 切换形状)"
+				label_status.text = "选取模式 (%d/%d): 左键取景 (Q/E 切换形状，右键退出)" % [active_shape_index + 1, active_shapes.size()]
 		Mode.MOVE:
-			label_status.text = "移动模式: 鼠标左键点击放置地形 (右键取消)"
+			label_status.text = "移动模式 (%d/%d): 左键放置地形 (右键取消)" % [active_shape_index + 1, active_shapes.size()]
 	
 	# Update button visual state (optional: modulate or theme)
 	btn_interact.release_focus()
@@ -103,25 +109,37 @@ func _on_mode_changed():
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed:
-		if event.keycode == KEY_1:
-			current_mode = Mode.INTERACT
-		elif event.keycode == KEY_2:
-			if not active_shapes.is_empty():
-				current_mode = Mode.SELECT
-			else:
-				tip_ui.show_tip("选取失败：已无可用形状")
-		elif event.keycode == KEY_3:
-			current_mode = Mode.MOVE
-		elif current_mode == Mode.SELECT:
+		if event.keycode == KEY_Q or event.keycode == KEY_E:
 			if active_shapes.is_empty():
+				tip_ui.show_tip("选取失败：已无可用形状")
 				return
-				
+			
+			# 保存当前索引的缓存
+			if current_mode == Mode.MOVE and not copied_tiles.is_empty():
+				active_shape_caches[active_shape_index] = {
+					"tiles": copied_tiles.duplicate(true),
+					"rect": selection_rect
+				}
+			elif current_mode == Mode.SELECT:
+				active_shape_caches[active_shape_index] = null
+
 			if event.keycode == KEY_Q:
 				active_shape_index = (active_shape_index - 1 + active_shapes.size()) % active_shapes.size()
-				_update_overlay()
-			elif event.keycode == KEY_E:
+			else:
 				active_shape_index = (active_shape_index + 1) % active_shapes.size()
-				_update_overlay()
+			
+			# 加载新索引的缓存
+			var cache = active_shape_caches[active_shape_index]
+			if cache:
+				copied_tiles = cache["tiles"].duplicate(true)
+				selection_rect = cache["rect"]
+				current_mode = Mode.MOVE
+			else:
+				copied_tiles = []
+				current_mode = Mode.SELECT
+				
+			_on_mode_changed()
+			_update_overlay()
 
 	if current_mode == Mode.INTERACT:
 		return
@@ -142,8 +160,12 @@ func _input(event: InputEvent) -> void:
 				_paste_selection(map_pos)
 		
 		elif event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
-			# Cancel or switch back to INTERACT
-			current_mode = Mode.INTERACT
+			if current_mode == Mode.MOVE:
+				copied_tiles.clear()
+				current_mode = Mode.SELECT
+				tip_ui.show_tip("已取消取景内容")
+			elif current_mode == Mode.SELECT:
+				current_mode = Mode.INTERACT
 
 	elif event is InputEventMouseMotion:
 		_update_overlay()
@@ -280,6 +302,8 @@ func _paste_selection(target_pos: Vector2i):
 	
 	# 每个形状只能使用一次
 	active_shapes.remove_at(active_shape_index)
+	active_shape_caches.remove_at(active_shape_index)
+	
 	if not active_shapes.is_empty():
 		active_shape_index = active_shape_index % active_shapes.size()
 	else:

@@ -13,9 +13,6 @@ func _ready():
 
 
 func _input(event):
-	if _viewfinder_system and _viewfinder_system.current_mode != ViewfinderSystem.Mode.INTERACT:
-		return
-		
 	var direction = Vector2i.ZERO
 	if event.is_action_pressed("move_up"):
 		direction = Vector2i.UP
