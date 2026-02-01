@@ -4,7 +4,9 @@
 [ext_resource type="Script" uid="uid://dh4gv4bsne1jd" path="res://content/levels/level.gd" id="1_nmoru"]
 
 [node name="Level" type="Node2D"]
-script = ExtResource("1_nmoru")level_hint = "注意有些地形无法被取景，有些位置无法被放置。"
+script = ExtResource("1_nmoru")
+level_hint = "人物会被障碍物阻挡"
+
 [node name="Fixed" type="TileMapLayer" parent="."]
 tile_set = ExtResource("1_b8wvq")
 

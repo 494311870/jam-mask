@@ -6,6 +6,11 @@
 
 [node name="ViewfinderSystem" type="Node2D" groups=["viewfinder_system"]]
 script = ExtResource("1_vfs")
+color_pasted = Color(1, 0.6666667, 0, 1)
+color_select = Color(0, 0.5, 1, 1)
+color_valid = Color(0, 0.9, 0, 1)
+outline_width = 3.0
+outline_width_active = 3.0
 
 [node name="ViewfinderUI" type="CanvasLayer" parent="."]
 

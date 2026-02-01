@@ -287,7 +287,7 @@ func _capture_selection(center_map_pos: Vector2i, shape: Array) -> void:
 		"rect": selection_rect
 	}
 	
-	tip_ui.show_tip("选取成功：已捕获 " + str(copied_tiles.size()) + " 个图块")
+	tip_ui.show_tip("成功选取 " + str(copied_tiles.size()) + " 个地块")
 	current_mode = Mode.MOVE
 	shapes_changed.emit()
 

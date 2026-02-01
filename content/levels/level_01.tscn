@@ -5,7 +5,7 @@
 
 [node name="Level" type="Node2D"]
 script = ExtResource("1_j2lr0")
-level_hint = "使用取景器捕获地形并放置到合适的位置，帮助小人到达终点。"
+level_hint = "使用 WASD 控制人物移动，到达终点"
 
 [node name="Fixed" type="TileMapLayer" parent="."]
 tile_set = ExtResource("1_66i2q")
