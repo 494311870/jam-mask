@@ -34,7 +34,12 @@ func show_main_menu() -> void:
 
 ## 进入下一关
 func next_level() -> void:
-	var next_index = (current_level_index + 1) % GameManager.level_paths.size()
+	var next_index = current_level_index + 1
+	if next_index >= GameManager.level_paths.size():
+		# 所有关卡已完成，显示通关界面
+		get_tree().change_scene_to_file("res://scenes/win_screen.tscn")
+		return
+		
 	current_level_index = next_index
 	GameManager.current_level_index = next_index
 	load_level(GameManager.level_paths[next_index])
