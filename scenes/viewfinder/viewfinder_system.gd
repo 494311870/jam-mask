@@ -22,7 +22,10 @@ var current_mode: Mode = Mode.INTERACT:
 		_on_mode_changed()
 
 var active_shapes: Array[Array] = DEFAULT_SHAPES
-var active_shape_index: int = 0
+var active_shape_index: int = 0:
+	set(value):
+		active_shape_index = value
+		shapes_changed.emit()
 
 # Array of TileDataInfo or similar
 var copied_tiles: Array = []
@@ -36,6 +39,11 @@ var pasted_shapes: Array[Array] = []
 var occupied_cells: Dictionary = {}
 ## 缓存每个形状对应的已取景内容 (与 active_shapes 索引一一对应)
 var active_shape_caches: Array = []
+
+## 新增：记录当前可用的 SelectorShape 资源，用于 UI 显示
+var active_shape_resources: Array[SelectorShape] = []
+
+signal shapes_changed
 
 @onready var btn_interact: Button = %BtnInteract
 @onready var btn_select: Button = %BtnSelect
@@ -67,13 +75,21 @@ func setup_layers(terrain: TileMapLayer, elements: TileMapLayer, shapes: Array[S
 	pasted_shapes.clear()
 	occupied_cells.clear()
 	active_shape_caches.clear()
+	active_shape_resources.clear()
 	
 	if not shapes.is_empty():
 		active_shapes = []
+		active_shape_resources = shapes.duplicate()
 		for s in shapes:
 			active_shapes.append(s.cells)
 	else:
 		active_shapes = DEFAULT_SHAPES.duplicate(true)
+		# 如果没有传入 shapes，也可以考虑生成默认的 SelectorShape 资源以便 UI 显示
+		for i in range(active_shapes.size()):
+			var s = SelectorShape.new()
+			s.shape_name = "形状 %d" % (i + 1)
+			s.cells = active_shapes[i]
+			active_shape_resources.append(s)
 	
 	active_shape_caches.resize(active_shapes.size())
 	active_shape_caches.fill(null)
@@ -84,6 +100,7 @@ func setup_layers(terrain: TileMapLayer, elements: TileMapLayer, shapes: Array[S
 		_setup_preview_layer()
 	
 	current_mode = Mode.INTERACT
+	shapes_changed.emit()
 
 func _on_mode_changed():
 	queue_redraw()
@@ -99,14 +116,14 @@ func _on_mode_changed():
 
 	match current_mode:
 		Mode.INTERACT:
-			label_status.text = "当前模式: 交互 (Q/E 进入选取模式)"
+			label_status.text = "Q/E 使用提取器"
 		Mode.SELECT:
 			if active_shapes.is_empty():
-				label_status.text = "选取模式: 已无可用形状"
+				label_status.text = "已无可用的提取器"
 			else:
-				label_status.text = "选取模式 (%d/%d): 左键取景 (Q/E 切换形状，右键退出)" % [active_shape_index + 1, active_shapes.size()]
+				label_status.text = "(%d/%d) 左键提取 (Q/E 切换形状，右键退出)" % [active_shape_index + 1, active_shapes.size()]
 		Mode.MOVE:
-			label_status.text = "移动模式 (%d/%d): 左键放置地形 (右键取消)" % [active_shape_index + 1, active_shapes.size()]
+			label_status.text = "(%d/%d) 左键放置地形 (右键取消)" % [active_shape_index + 1, active_shapes.size()]
 	
 	# Update button visual state (optional: modulate or theme)
 	btn_interact.release_focus()
@@ -149,6 +166,7 @@ func _input(event: InputEvent) -> void:
 				
 			_on_mode_changed()
 			_update_overlay()
+			shapes_changed.emit()
 
 	if current_mode == Mode.INTERACT:
 		return
@@ -171,8 +189,10 @@ func _input(event: InputEvent) -> void:
 		elif event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
 			if current_mode == Mode.MOVE:
 				copied_tiles.clear()
+				active_shape_caches[active_shape_index] = null
 				current_mode = Mode.SELECT
 				tip_ui.show_tip("已取消取景内容")
+				shapes_changed.emit()
 			elif current_mode == Mode.SELECT:
 				current_mode = Mode.INTERACT
 
@@ -264,28 +284,48 @@ func _capture_selection(center_map_pos: Vector2i, shape: Array) -> void:
 		
 		var atlas_coords: Vector2i = terrain_layer.get_cell_atlas_coords(coords)
 		var alternative_tile: int = terrain_layer.get_cell_alternative_tile(coords)
+		var tile_data: TileData = terrain_layer.get_cell_tile_data(coords)
+		var modulate: Color = Color.WHITE
+		if tile_data:
+			modulate = tile_data.modulate
 		
 		new_tiles.append({
 			"offset": offset,
 			"source_id": source_id,
 			"atlas_coords": atlas_coords,
-			"alternative_tile": alternative_tile
+			"alternative_tile": alternative_tile,
+			"modulate": modulate
 		})
 	
 	selection_rect = Rect2i(min_p, max_p - min_p + Vector2i.ONE)
 	copied_tiles = new_tiles
+	
+	# 更新缓存
+	active_shape_caches[active_shape_index] = {
+		"tiles": copied_tiles.duplicate(true),
+		"rect": selection_rect
+	}
+	
 	tip_ui.show_tip("选取成功：已捕获 " + str(copied_tiles.size()) + " 个图块")
 	current_mode = Mode.MOVE
+	shapes_changed.emit()
 
 func _can_place_at(target_pos: Vector2i) -> bool:
 	if copied_tiles.is_empty():
 		return false
+	
+	var player = get_tree().get_first_node_in_group("player")
+	var player_map_pos = Vector2i(-999, -999)
+	if player:
+		player_map_pos = terrain_layer.local_to_map(terrain_layer.to_local(player.global_position))
 	
 	for tile in copied_tiles:
 		var pos = target_pos + tile.offset
 		if terrain_layer.get_cell_source_id(pos) == -1:
 			return false
 		if occupied_cells.has(pos):
+			return false
+		if pos == player_map_pos:
 			return false
 	return true
 
@@ -312,6 +352,7 @@ func _paste_selection(target_pos: Vector2i):
 	# 每个形状只能使用一次
 	active_shapes.remove_at(active_shape_index)
 	active_shape_caches.remove_at(active_shape_index)
+	active_shape_resources.remove_at(active_shape_index)
 	
 	if not active_shapes.is_empty():
 		active_shape_index = active_shape_index % active_shapes.size()
@@ -320,6 +361,7 @@ func _paste_selection(target_pos: Vector2i):
 		
 	copied_tiles.clear()
 	current_mode = Mode.INTERACT
+	shapes_changed.emit()
 
 func _process(_delta: float) -> void:
 	if current_mode == Mode.MOVE:

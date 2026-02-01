@@ -1,3 +1,4 @@
+class_name Player
 extends MapElement
 
 @onready var _viewfinder_system : ViewfinderSystem = get_tree().get_first_node_in_group("viewfinder_system")
@@ -7,6 +8,7 @@ var _terrain_layer : TileMapLayer
 
 func _ready():
 	super._ready()
+	add_to_group("player")
 
 	_fixed_layer = get_parent().get_node("../Fixed")
 	_terrain_layer = get_parent().get_node("../Terrain")
