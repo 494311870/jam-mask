@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://c6y7v8u8q4b6v"]
+[gd_scene load_steps=6 format=3 uid="uid://c6y7v8u8q4b6v"]
 
 [ext_resource type="Script" uid="uid://iff3dy2iwo2" path="res://scenes/main_menu.gd" id="1_menu"]
 [ext_resource type="Texture2D" uid="uid://dx8qu240ftl5e" path="res://art/背景图.png" id="2_bqqt6"]
 [ext_resource type="PackedScene" uid="uid://b8y7v8u8q4b6v" path="res://scenes/level_selection.tscn" id="2_levels"]
+[ext_resource type="Theme" uid="uid://d11gdhjmp4wf7" path="res://scenes/main_theme.tres" id="3_8ln24"]
 [ext_resource type="Texture2D" uid="uid://bfd3yfqef0wpd" path="res://art/ui/Music-On.png" id="4_music_on"]
 
 [node name="MainMenu" type="CanvasLayer"]
@@ -23,6 +24,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("3_8ln24")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
 custom_minimum_size = Vector2(300, 400)
