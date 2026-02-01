@@ -1,0 +1,26 @@
+[gd_scene load_steps=5 format=4 uid="uid://b06bmufj13103"]
+
+[ext_resource type="Script" uid="uid://dh4gv4bsne1jd" path="res://content/levels/level.gd" id="1_hlywx"]
+[ext_resource type="Script" uid="uid://db7fwlv2k6w8f" path="res://scripts/selector_shape.gd" id="2_aawwl"]
+[ext_resource type="Resource" uid="uid://d3k4unb65eofl" path="res://content/shapes/shape_1x2.tres" id="3_coo27"]
+[ext_resource type="TileSet" uid="uid://fw5n5hbuwk1v" path="res://tiles/tile_set.tres" id="5_fk4ym"]
+
+[node name="Level" type="Node2D"]
+script = ExtResource("1_hlywx")
+available_shapes = Array[ExtResource("2_aawwl")]([ExtResource("3_coo27"), ExtResource("3_coo27")])
+
+[node name="Terrain" type="TileMapLayer" parent="."]
+tile_map_data = PackedByteArray("AAABAAMAAQACAAAAAAABAAQAAQAAAAAAAAABAAEAAQAAAAAAAAABAAAAAQACAAAAAAABAAIAAQAAAAAAAAAAAAAAAQAAAAAAAAA=")
+tile_set = ExtResource("5_fk4ym")
+
+[node name="Mask" type="TileMapLayer" parent="."]
+tile_map_data = PackedByteArray("AAD6/wIAAQAAAAAAAAD6/wMAAQAAAAAAAAD8/wIAAQAAAAAAAAD8/wMAAQAAAAAAAAA=")
+tile_set = ExtResource("5_fk4ym")
+
+[node name="Elements" type="TileMapLayer" parent="."]
+tile_map_data = PackedByteArray("AAABAAQABgAAAAAAAgAAAAAABgAAAAAAAQA=")
+tile_set = ExtResource("5_fk4ym")
+
+[node name="Fixed" type="TileMapLayer" parent="."]
+tile_map_data = PackedByteArray("AAD/////AQABAAAAAAAAAP//AQABAAAAAAABAP//AQABAAAAAAACAAUAAQABAAAAAAABAAUAAQABAAAAAAAAAAUAAQABAAAAAAAAAAIAAQABAAAAAAAAAAEAAQABAAAAAAAAAAMAAQABAAAAAAAAAAQAAQABAAAAAAACAAQAAQABAAAAAAACAAMAAQABAAAAAAACAAIAAQABAAAAAAACAAAAAQABAAAAAAACAAEAAQABAAAAAAD//wAAAQABAAAAAAACAP//AQABAAAAAAD//wEAAQABAAAAAAA=")
+tile_set = ExtResource("5_fk4ym")

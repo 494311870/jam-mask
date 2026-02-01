@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="SelectorShape" load_steps=2 format=3 uid="uid://d3k4unb65eofl"]
+
+[ext_resource type="Script" uid="uid://db7fwlv2k6w8f" path="res://scripts/selector_shape.gd" id="1_ae6rs"]
+
+[resource]
+script = ExtResource("1_ae6rs")
+shape_name = "I-Shape"
+cells = Array[Vector2i]([Vector2i(0, 0), Vector2i(0, 1)])
