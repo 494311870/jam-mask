@@ -6,7 +6,6 @@
 
 [node name="ViewfinderSystem" type="Node2D" groups=["viewfinder_system"]]
 script = ExtResource("1_vfs")
-color_select = Color(0.35418963, 0.49086076, 0.59210366, 1)
 
 [node name="ViewfinderUI" type="CanvasLayer" parent="."]
 

@@ -4,6 +4,7 @@ extends Node2D
 ## 关卡基础类，定义关卡特定的配置
 
 @export var available_shapes: Array[SelectorShape] = []
+@export_multiline var level_hint: String = ""
 @export var auto_generate_walls: bool = true
 @export var wall_source_id: int = 1
 @export var wall_atlas_coords: Vector2i = Vector2i(1, 0)

@@ -7,6 +7,7 @@ const ICON_MUSIC_OFF = preload("res://art/ui/Music-Off.png")
 @onready var btn_restart: Button = %BtnRestart
 @onready var btn_audio: Button = %BtnAudio
 @onready var music_icon: TextureRect = %MusicIcon
+@onready var label_hint: Label = %LabelHint
 
 func _ready() -> void:
 	btn_restart.pressed.connect(_on_btn_restart_pressed)
@@ -28,3 +29,8 @@ func _on_btn_audio_toggled(is_on: bool) -> void:
 			audio_player.playing = is_on
 	
 	music_icon.texture = ICON_MUSIC_ON if is_on else ICON_MUSIC_OFF
+
+func set_hint(text: String) -> void:
+	if label_hint:
+		label_hint.text = text
+		label_hint.visible = not text.is_empty()

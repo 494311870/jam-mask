@@ -6,6 +6,7 @@ extends Node2D
 
 @onready var current_level_container: Node2D = $CurrentLevel
 @onready var viewfinder_system: ViewfinderSystem = $ViewfinderSystem
+@onready var main_ui: MainUI = $MainUI
 
 var level_paths: Array[String] = []
 var current_level_index: int = -1
@@ -135,6 +136,8 @@ func _setup_systems(level: Node2D) -> void:
 	
 	if level is Level:
 		shapes = level.available_shapes
+		if main_ui:
+			main_ui.set_hint(level.level_hint)
 	
 	if viewfinder_system:
 		viewfinder_system.setup_layers(terrain, elements, shapes)
