@@ -1,12 +1,12 @@
-[gd_scene load_steps=5 format=3 uid="uid://bfvtfqii1ytgf"]
+[gd_scene load_steps=4 format=3 uid="uid://bfvtfqii1ytgf"]
 
 [ext_resource type="Script" uid="uid://dy6si7stf21j6" path="res://scenes/viewfinder/viewfinder_system.gd" id="1_vfs"]
 [ext_resource type="PackedScene" uid="uid://bl6qtwotfl4wm" path="res://scenes/viewfinder/tip_ui.tscn" id="2_tt4el"]
-[ext_resource type="Texture2D" uid="uid://bwhskl0nr5eqt" path="res://art/ui/DoubleCircleArrows1.png" id="3_gxgj1"]
 [ext_resource type="PackedScene" uid="uid://cx6q8p7v8n2y" path="res://scenes/viewfinder/shape_inventory_ui.tscn" id="3_inv"]
 
 [node name="ViewfinderSystem" type="Node2D" groups=["viewfinder_system"]]
 script = ExtResource("1_vfs")
+color_select = Color(0.35418963, 0.49086076, 0.59210366, 1)
 
 [node name="ViewfinderUI" type="CanvasLayer" parent="."]
 

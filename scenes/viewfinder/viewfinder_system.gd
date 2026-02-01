@@ -3,18 +3,16 @@ extends Node2D
 
 enum Mode { INTERACT, SELECT, MOVE }
 
-const DEFAULT_SHAPES: Array[Array] = [
-	[Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0)], # I
-	[Vector2i(0, 0), Vector2i(1, 0), Vector2i(0, 1), Vector2i(1, 1)], # O
-	[Vector2i(1, 0), Vector2i(0, 1), Vector2i(1, 1), Vector2i(2, 1)], # T
-	[Vector2i(0, 0), Vector2i(0, 1), Vector2i(1, 1), Vector2i(2, 1)], # J
-	[Vector2i(2, 0), Vector2i(0, 1), Vector2i(1, 1), Vector2i(2, 1)], # L
-	[Vector2i(1, 0), Vector2i(2, 0), Vector2i(0, 1), Vector2i(1, 1)], # S
-	[Vector2i(0, 0), Vector2i(1, 0), Vector2i(1, 1), Vector2i(2, 1)]  # Z
-]
-
 @export var terrain_layer: TileMapLayer
 @export var elements_layer: TileMapLayer
+
+@export_group("Visuals")
+@export var color_pasted: Color = Color.YELLOW
+@export var color_select: Color = Color.YELLOW
+@export var color_valid: Color = Color.GREEN
+@export var color_invalid: Color = Color.RED
+@export var outline_width: float = 2.0
+@export var outline_width_active: float = 2.5
 
 var current_mode: Mode = Mode.INTERACT:
 	set(value):
@@ -378,7 +376,7 @@ func _setup_preview_layer():
 func _on_overlay_draw():
 	# 绘制已粘贴形状的黄色边框
 	for shape in pasted_shapes:
-		_draw_shape_outline(Vector2i.ZERO, shape, Color.YELLOW, 2.0)
+		_draw_shape_outline(Vector2i.ZERO, shape, color_pasted, outline_width)
 
 	if current_mode == Mode.SELECT:
 		if active_shapes.is_empty():
@@ -387,20 +385,20 @@ func _on_overlay_draw():
 		var mouse_pos = get_global_mouse_position()
 		var map_pos = terrain_layer.local_to_map(terrain_layer.to_local(mouse_pos))
 		var offsets = active_shapes[active_shape_index]
-		_draw_shape_outline(map_pos, offsets, Color.YELLOW, 2.0)
+		_draw_shape_outline(map_pos, offsets, color_select, outline_width)
 	
 	elif current_mode == Mode.MOVE:
 		var mouse_pos = get_global_mouse_position()
 		var map_pos = terrain_layer.local_to_map(terrain_layer.to_local(mouse_pos))
 		if copied_tiles.size() > 0:
 			var is_valid = _can_place_at(map_pos)
-			var border_color = Color.GREEN if is_valid else Color.RED
+			var border_color = color_valid if is_valid else color_invalid
 			
 			var offsets = []
 			for tile in copied_tiles:
 				offsets.append(tile.offset)
 			
-			_draw_shape_outline(map_pos, offsets, border_color, 2.5) 
+			_draw_shape_outline(map_pos, offsets, border_color, outline_width_active) 
 
 func _update_preview_layer_cells():
 	preview_layer.clear()
