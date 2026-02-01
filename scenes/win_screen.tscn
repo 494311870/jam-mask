@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://d3y7v8u8q4b6v"]
 
-[ext_resource type="Script" path="res://scenes/win_screen.gd" id="1_win"]
-[ext_resource type="Theme" uid="uid://b8y7v8u8q4b6v" path="res://themes/main_theme.tres" id="2_theme"]
+[ext_resource type="Script" uid="uid://td324x2pktfu" path="res://scenes/win_screen.gd" id="1_win"]
+[ext_resource type="Theme" uid="uid://d11gdhjmp4wf7" path="res://scenes/main_theme.tres" id="2_theme"]
 
 [node name="WinScreen" type="CanvasLayer"]
 script = ExtResource("1_win")
@@ -30,13 +30,13 @@ theme_override_constants/separation = 40
 [node name="Title" type="Label" parent="CenterContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 72
-text = "恭喜通关！"
+text = "恭喜通关"
 horizontal_alignment = 1
 
 [node name="Message" type="Label" parent="CenterContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
-text = "你已经完成了所有的关卡。"
+text = "你已经完成了所有的关卡"
 horizontal_alignment = 1
 
 [node name="Spacer" type="Control" parent="CenterContainer/VBoxContainer"]

@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://b8y7v8u8q4b6v"]
 
-[ext_resource type="Script" path="res://scenes/level_selection.gd" id="1_levels"]
+[ext_resource type="Script" uid="uid://cllvuknfdv4yn" path="res://scenes/level_selection.gd" id="1_levels"]
 
 [node name="LevelSelection" type="CanvasLayer"]
 script = ExtResource("1_levels")
@@ -11,7 +11,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.12549, 0.12549, 0.12549, 0.901961)
+color = Color(0.1, 0.1, 0.1, 0.9019608)
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 anchors_preset = 15
