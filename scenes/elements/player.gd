@@ -8,15 +8,20 @@ func _ready():
 
 	_terrain_layer = get_parent().get_node("%Terrain")
 
+@onready var _viewfinder_system : ViewfinderSystem = get_tree().get_first_node_in_group("viewfinder_system")
+
 func _input(event):
+	if _viewfinder_system and _viewfinder_system.current_mode != ViewfinderSystem.Mode.INTERACT:
+		return
+		
 	var direction = Vector2i.ZERO
-	if event.is_action_pressed("ui_up"):
+	if event.is_action_pressed("move_up"):
 		direction = Vector2i.UP
-	elif event.is_action_pressed("ui_down"):
+	elif event.is_action_pressed("move_down"):
 		direction = Vector2i.DOWN
-	elif event.is_action_pressed("ui_left"):
+	elif event.is_action_pressed("move_left"):
 		direction = Vector2i.LEFT
-	elif event.is_action_pressed("ui_right"):
+	elif event.is_action_pressed("move_right"):
 		direction = Vector2i.RIGHT
 	
 	if direction != Vector2i.ZERO:
