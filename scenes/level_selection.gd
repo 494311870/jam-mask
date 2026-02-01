@@ -22,7 +22,6 @@ func setup_levels(level_paths: Array[String]) -> void:
 		
 		btn.text = level_name
 		btn.custom_minimum_size = Vector2(80, 80)
-		btn.set("theme_override_font_sizes/font_size", 24)
 		
 		btn.pressed.connect(func(): level_selected.emit(i))
 		grid_container.add_child(btn)

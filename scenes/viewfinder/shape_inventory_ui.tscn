@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://cx6q8p7v8n2y"]
+[gd_scene load_steps=3 format=3 uid="uid://cx6q8p7v8n2y"]
 
 [ext_resource type="Script" uid="uid://coyunfstfyaan" path="res://scenes/viewfinder/shape_inventory_ui.gd" id="1_inventory"]
+[ext_resource type="Theme" path="res://themes/main_theme.tres" id="2_theme"]
 
 [node name="ShapeInventoryUI" type="Control"]
 layout_mode = 3
@@ -9,6 +10,7 @@ anchor_bottom = 1.0
 offset_right = 200.0
 grow_vertical = 2
 mouse_filter = 2
+theme = ExtResource("2_theme")
 script = ExtResource("1_inventory")
 
 [node name="Panel" type="Panel" parent="."]
