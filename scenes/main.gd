@@ -8,7 +8,6 @@ extends Node2D
 @onready var viewfinder_system: ViewfinderSystem = $ViewfinderSystem
 @onready var main_ui: MainUI = $MainUI
 
-var level_paths: Array[String] = []
 var current_level_index: int = -1
 var current_level_path: String = ""
 
@@ -16,61 +15,42 @@ func _ready() -> void:
 	# 注册到组，方便 Player 调用
 	add_to_group("game_manager")
 	
-	# 扫描关卡目录
-	_scan_levels()
-
 	# 如果在编辑器调试且设置了调试关卡，优先加载
 	if OS.is_debug_build() and debug_level:
 		load_level(debug_level.resource_path)
 		return
 	
-	# 加载第一关
-	if level_paths.size() > 0:
-		load_level_by_index(0)
+	# 从全局管理器获取关卡路径
+	var level_path = GameManager.get_current_level_path()
+	if level_path != "":
+		current_level_index = GameManager.current_level_index
+		load_level(level_path)
 	else:
-		push_warning("没有找到任何关卡文件！")
+		push_warning("没有找到要加载的关卡，返回主菜单")
+		show_main_menu()
 
-## 扫描关卡目录
-func _scan_levels() -> void:
-	level_paths.clear()
-	var levels = ResourceUtility.list_files("res://content/levels/")
-	for path in levels:
-		if path.ends_with(".tscn") and not path.contains("_template"):
-			level_paths.append(path)
-	
-	# 对关卡名称进行排序
-	level_paths.sort()
+func show_main_menu() -> void:
+	GameManager.back_to_menu()
 
 ## 进入下一关
 func next_level() -> void:
-	var next_index = (current_level_index + 1) % level_paths.size()
-	load_level_by_index(next_index)
+	var next_index = (current_level_index + 1) % GameManager.level_paths.size()
+	current_level_index = next_index
+	GameManager.current_level_index = next_index
+	load_level(GameManager.level_paths[next_index])
 
 ## 重启当前关卡
 func restart_level() -> void:
 	print("[Main] 重启当前关卡: ", current_level_path)
 	if current_level_path != "":
 		load_level(current_level_path)
-	elif current_level_index != -1:
-		load_level_by_index(current_level_index)
-
-## 按索引加载关卡
-func load_level_by_index(index: int) -> void:
-	if index < 0 or index >= level_paths.size():
-		return
-		
-	current_level_index = index
-	load_level(level_paths[index])
 
 ## 动态加载关卡
 func load_level(level_path: String) -> void:
 	print("[Main] 加载关卡: ", level_path)
 	current_level_path = level_path
 	
-	# 清理当前关卡并重置容器位置
-	current_level_container.position = Vector2.ZERO
-	for child in current_level_container.get_children():
-		child.queue_free()
+	_clear_current_level()
 	
 	# 加载新关卡
 	var level_scene = load(level_path)
@@ -86,6 +66,11 @@ func load_level(level_path: String) -> void:
 	
 	# 居中显示关卡
 	call_deferred("center_level")
+
+func _clear_current_level() -> void:
+	current_level_container.position = Vector2.ZERO
+	for child in current_level_container.get_children():
+		child.queue_free()
 
 ## 居中显示当前关卡
 func center_level() -> void:
