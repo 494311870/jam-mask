@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="SelectorShape" load_steps=2 format=3 uid="uid://bih0vi7onmfic"]
 
-[ext_resource type="Script" path="res://scripts/selector_shape.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://db7fwlv2k6w8f" path="res://scripts/selector_shape.gd" id="1_script"]
 
 [resource]
 script = ExtResource("1_script")

@@ -30,6 +30,11 @@ var selection_rect: Rect2i
 var preview_layer: TileMapLayer
 var overlay_layer: Node2D
 
+## 记录已粘贴的形状（绝对坐标数组）
+var pasted_shapes: Array[Array] = []
+## 记录已被粘贴内容占据的格子坐标，用于快速查找 (Vector2i -> bool)
+var occupied_cells: Dictionary = {}
+
 @onready var btn_interact: Button = %BtnInteract
 @onready var btn_select: Button = %BtnSelect
 @onready var btn_move: Button = %BtnMove
@@ -48,6 +53,9 @@ func _ready() -> void:
 func setup_layers(terrain: TileMapLayer, elements: TileMapLayer, shapes: Array[SelectorShape] = []) -> void:
 	terrain_layer = terrain
 	elements_layer = elements
+	
+	pasted_shapes.clear()
+	occupied_cells.clear()
 	
 	if not shapes.is_empty():
 		active_shapes = []
@@ -193,10 +201,15 @@ func _capture_selection(center_map_pos: Vector2i, shape: Array) -> void:
 		var coords: Vector2i = center_map_pos + offset
 		var source_id: int = terrain_layer.get_cell_source_id(coords)
 		
-		# 如果该形状覆盖的任一位置没有图块，则整个选取无效
+		# 如果该形状覆盖的任一位置没有图块，或者是已粘贴的内容，则整个选取无效
 		if source_id == -1:
 			copied_tiles.clear()
 			tip_ui.show_tip("选取无效：必须在该形状覆盖的所有位置都有地形")
+			return
+		
+		if occupied_cells.has(coords):
+			copied_tiles.clear()
+			tip_ui.show_tip("选取无效：不能二次取景")
 			return
 		
 		min_p.x = min(min_p.x, offset.x)
@@ -227,6 +240,8 @@ func _can_place_at(target_pos: Vector2i) -> bool:
 		var pos = target_pos + tile.offset
 		if terrain_layer.get_cell_source_id(pos) == -1:
 			return false
+		if occupied_cells.has(pos):
+			return false
 	return true
 
 func _paste_selection(target_pos: Vector2i):
@@ -235,12 +250,17 @@ func _paste_selection(target_pos: Vector2i):
 		return
 	
 	if not _can_place_at(target_pos):
-		tip_ui.show_tip("放置失败：不在范围内")
+		tip_ui.show_tip("放置失败：不在有效范围内")
 		return
 
+	var new_pasted_shape: Array[Vector2i] = []
 	for tile in copied_tiles:
 		var pos = target_pos + tile.offset
 		terrain_layer.set_cell(pos, tile.source_id, tile.atlas_coords, tile.alternative_tile)
+		new_pasted_shape.append(pos)
+		occupied_cells[pos] = true
+	
+	pasted_shapes.append(new_pasted_shape)
 	
 	tip_ui.show_tip("放置成功")
 	copied_tiles.clear()
@@ -276,6 +296,10 @@ func _setup_preview_layer():
 		overlay_layer.draw.connect(_on_overlay_draw)
 
 func _on_overlay_draw():
+	# 绘制已粘贴形状的黄色边框
+	for shape in pasted_shapes:
+		_draw_shape_outline(Vector2i.ZERO, shape, Color.YELLOW, 2.0)
+
 	if current_mode == Mode.SELECT:
 		var mouse_pos = get_global_mouse_position()
 		var map_pos = terrain_layer.local_to_map(terrain_layer.to_local(mouse_pos))
