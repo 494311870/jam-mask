@@ -35,6 +35,7 @@ theme_override_constants/separation = 20
 alignment = 1
 
 [node name="HBoxContainer" type="HBoxContainer" parent="ViewfinderUI/Control/Panel/HBoxContainer2"]
+visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 20
@@ -66,6 +67,11 @@ layout_mode = 2
 text = "当前模式: 交互 (可以使用方向键移动)"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="BtnRestart" type="Button" parent="ViewfinderUI/Control/Panel/HBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "重开"
 
 [node name="TipUI" parent="ViewfinderUI" instance=ExtResource("2_tt4el")]
 unique_name_in_owner = true

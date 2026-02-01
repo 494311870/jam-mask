@@ -40,6 +40,7 @@ var active_shape_caches: Array = []
 @onready var btn_interact: Button = %BtnInteract
 @onready var btn_select: Button = %BtnSelect
 @onready var btn_move: Button = %BtnMove
+@onready var btn_restart: Button = %BtnRestart
 @onready var label_status: Label = %LabelStatus
 @onready var tip_ui: TipUI = %TipUI
 
@@ -50,6 +51,13 @@ func _ready() -> void:
 	btn_interact.pressed.connect(func(): current_mode = Mode.INTERACT)
 	btn_select.pressed.connect(func(): current_mode = Mode.SELECT)
 	btn_move.pressed.connect(func(): current_mode = Mode.MOVE)
+	btn_restart.pressed.connect(restart_level)
+
+## 重启当前关卡
+func restart_level() -> void:
+	var main = get_tree().get_first_node_in_group("game_manager")
+	if main and main.has_method("restart_level"):
+		main.restart_level()
 
 ## 设置当前操作的地图层
 func setup_layers(terrain: TileMapLayer, elements: TileMapLayer, shapes: Array[SelectorShape] = []) -> void:
@@ -104,6 +112,7 @@ func _on_mode_changed():
 	btn_interact.release_focus()
 	btn_select.release_focus()
 	btn_move.release_focus()
+	btn_restart.release_focus()
 	
 	btn_select.disabled = active_shapes.is_empty()
 
