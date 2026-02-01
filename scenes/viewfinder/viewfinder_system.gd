@@ -21,7 +21,7 @@ var current_mode: Mode = Mode.INTERACT:
 		current_mode = value
 		_on_mode_changed()
 
-var active_shapes: Array[Array] = DEFAULT_SHAPES
+var active_shapes: Array[Array] = []
 var active_shape_index: int = 0:
 	set(value):
 		active_shape_index = value
@@ -82,14 +82,6 @@ func setup_layers(terrain: TileMapLayer, elements: TileMapLayer, shapes: Array[S
 		active_shape_resources = shapes.duplicate()
 		for s in shapes:
 			active_shapes.append(s.cells)
-	else:
-		active_shapes = DEFAULT_SHAPES.duplicate(true)
-		# 如果没有传入 shapes，也可以考虑生成默认的 SelectorShape 资源以便 UI 显示
-		for i in range(active_shapes.size()):
-			var s = SelectorShape.new()
-			s.shape_name = "形状 %d" % (i + 1)
-			s.cells = active_shapes[i]
-			active_shape_resources.append(s)
 	
 	active_shape_caches.resize(active_shapes.size())
 	active_shape_caches.fill(null)
@@ -116,14 +108,14 @@ func _on_mode_changed():
 
 	match current_mode:
 		Mode.INTERACT:
-			label_status.text = "Q/E 使用提取器"
+			label_status.text = "(Q/E) 选择取景器"
 		Mode.SELECT:
 			if active_shapes.is_empty():
-				label_status.text = "已无可用的提取器"
+				label_status.text = "已无可用的取景器"
 			else:
-				label_status.text = "(%d/%d) 左键提取 (Q/E 切换形状，右键退出)" % [active_shape_index + 1, active_shapes.size()]
+				label_status.text = "(鼠标) 移动取景器    (左键) 记录地形    (Q/E) 切换取景器" % [active_shape_index + 1, active_shapes.size()]
 		Mode.MOVE:
-			label_status.text = "(%d/%d) 左键放置地形 (右键取消)" % [active_shape_index + 1, active_shapes.size()]
+			label_status.text = "(左键) 放置地形    (右键) 重新选择地形" % [active_shape_index + 1, active_shapes.size()]
 	
 	# Update button visual state (optional: modulate or theme)
 	btn_interact.release_focus()
@@ -178,7 +170,7 @@ func _input(event: InputEvent) -> void:
 		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 			if current_mode == Mode.SELECT:
 				if active_shapes.is_empty():
-					tip_ui.show_tip("选取失败：没有可用的形状")
+					tip_ui.show_tip("无可用取景器")
 					return
 				var current_shape: Array = active_shapes[active_shape_index]
 				_capture_selection(map_pos, current_shape)
@@ -191,7 +183,7 @@ func _input(event: InputEvent) -> void:
 				copied_tiles.clear()
 				active_shape_caches[active_shape_index] = null
 				current_mode = Mode.SELECT
-				tip_ui.show_tip("已取消取景内容")
+				tip_ui.show_tip("已取消选择内容")
 				shapes_changed.emit()
 			elif current_mode == Mode.SELECT:
 				current_mode = Mode.INTERACT

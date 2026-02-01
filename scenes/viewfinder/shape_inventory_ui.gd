@@ -87,10 +87,10 @@ func _create_item_ui(shape_res: SelectorShape, cache: Variant, is_selected: bool
 	var status_label = Label.new()
 	status_label.add_theme_font_size_override("font_size", 12)
 	if cache:
-		status_label.text = "状态: 已填充内容"
+		status_label.text = "已记录地形"
 		status_label.add_theme_color_override("font_color", Color.SPRING_GREEN)
 	else:
-		status_label.text = "状态: 待选取"
+		status_label.text = "待选取"
 		status_label.add_theme_color_override("font_color", Color.GRAY)
 	vbox.add_child(status_label)
 	

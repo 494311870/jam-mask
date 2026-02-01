@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://dh4gv4bsne1jd" path="res://content/levels/level.gd" id="1_yacxf"]
 [ext_resource type="Script" uid="uid://db7fwlv2k6w8f" path="res://scripts/selector_shape.gd" id="2_6p674"]
 [ext_resource type="Resource" uid="uid://bih0vi7onmfic" path="res://content/shapes/shape_1x3.tres" id="3_i4wn2"]
-[ext_resource type="Resource" uid="uid://bi15venucpcxh" path="res://content/shapes/shape_1x5.tres" id="4_i4wn2"]
+[ext_resource type="Resource" uid="uid://bi15venucpcxh" path="res://content/shapes/shape_5x1.tres" id="4_i4wn2"]
 
 [node name="Level" type="Node2D"]
 script = ExtResource("1_yacxf")
