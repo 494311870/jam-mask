@@ -2,6 +2,8 @@ extends Node2D
 
 ## 场景核心脚本，负责关卡加载和系统初始化
 
+@export var debug_level : PackedScene
+
 @onready var current_level_container: Node2D = $CurrentLevel
 @onready var viewfinder_system: ViewfinderSystem = $ViewfinderSystem
 
@@ -14,6 +16,11 @@ func _ready() -> void:
 	
 	# 扫描关卡目录
 	_scan_levels()
+
+	# 如果在编辑器调试且设置了调试关卡，优先加载
+	if OS.is_debug_build() and debug_level:
+		load_level(debug_level.resource_path)
+		return
 	
 	# 加载第一关
 	if level_paths.size() > 0:
