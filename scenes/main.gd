@@ -93,39 +93,17 @@ func center_level() -> void:
 	if not level:
 		return
 		
-	# 查找所有 TileMapLayer 以确定地图总边界
-	var layers = level.find_children("", "TileMapLayer", true, false)
-	if layers.is_empty():
+	# 只计算 Terrain 层的内容进行居中
+	var terrain = level.get_node_or_null("Terrain") as TileMapLayer
+	if not terrain or not terrain.tile_set:
+		push_warning("[Main] 关卡中缺少名为 Terrain 的 TileMapLayer，无法自动居中")
 		return
 		
-	var combined_rect: Rect2i
-	var has_rect = false
-	
-	for layer in layers:
-		if layer is TileMapLayer:
-			var rect = layer.get_used_rect()
-			if rect.size == Vector2i.ZERO:
-				continue
-			if not has_rect:
-				combined_rect = rect
-				has_rect = true
-			else:
-				combined_rect = combined_rect.merge(rect)
-	
-	if not has_rect:
+	var combined_rect = terrain.get_used_rect()
+	if combined_rect.size == Vector2i.ZERO:
 		return
 		
-	# 获取第一个有内容的层的图块大小（假设所有层一致）
-	var first_layer: TileMapLayer = null
-	for layer in layers:
-		if layer is TileMapLayer and layer.tile_set:
-			first_layer = layer
-			break
-			
-	if not first_layer:
-		return
-		
-	var tile_size = Vector2(first_layer.tile_set.tile_size)
+	var tile_size = Vector2(terrain.tile_set.tile_size)
 	
 	# 关卡内容在 Level 节点坐标系下的像素矩形范围
 	var content_pos_px = Vector2(combined_rect.position) * tile_size
@@ -142,7 +120,7 @@ func center_level() -> void:
 	
 	# 打印调试信息
 	print("Viewport Size: ", viewport_size)
-	print("Level Bounds: ", combined_rect, " (px: ", content_pos_px, ", ", content_size_px, ")")
+	print("Terrain Bounds: ", combined_rect, " (px: ", content_pos_px, ", ", content_size_px, ")")
 	print("Calculated Container Position: ", target_pos)
 
 func _setup_systems(level: Node2D) -> void:
