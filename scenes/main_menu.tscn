@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://iff3dy2iwo2" path="res://scenes/main_menu.gd" id="1_menu"]
 [ext_resource type="Texture2D" uid="uid://dx8qu240ftl5e" path="res://art/背景图.png" id="2_bqqt6"]
 [ext_resource type="PackedScene" uid="uid://b8y7v8u8q4b6v" path="res://scenes/level_selection.tscn" id="2_levels"]
+[ext_resource type="Texture2D" uid="uid://bfd3yfqef0wpd" path="res://art/ui/Music-On.png" id="4_music_on"]
 
 [node name="MainMenu" type="CanvasLayer"]
 script = ExtResource("1_menu")
@@ -60,6 +61,52 @@ custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "退出游戏"
+
+[node name="Settings" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -100.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = 100.0
+grow_horizontal = 0
+
+[node name="BtnAudio" type="Button" parent="Settings"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(54, 54)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -27.0
+offset_top = -27.0
+offset_right = 27.0
+offset_bottom = 27.0
+grow_horizontal = 2
+grow_vertical = 2
+toggle_mode = true
+
+[node name="MusicIcon" type="TextureRect" parent="Settings/BtnAudio"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -15.0
+offset_top = -13.5
+offset_right = 15.0
+offset_bottom = 13.5
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("4_music_on")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="LevelSelection" parent="." instance=ExtResource("2_levels")]
 visible = false
