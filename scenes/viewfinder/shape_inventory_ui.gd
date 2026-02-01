@@ -71,17 +71,17 @@ func _create_item_ui(shape_res: SelectorShape, cache: Variant, is_selected: bool
 	preview_rect.draw.connect(func(): _draw_shape_preview(preview_rect, shape_res.cells, cache))
 	hbox.add_child(preview_rect)
 	
-	var vbox = VBoxContainer.new()
-	vbox.size_flags_horizontal = SIZE_EXPAND_FILL
-	hbox.add_child(vbox)
+	# var vbox = VBoxContainer.new()
+	# vbox.size_flags_horizontal = SIZE_EXPAND_FILL
+	# hbox.add_child(vbox)
 	
 	# 形状名称
-	var label = Label.new()
-	label.text = shape_res.shape_name
-	label.add_theme_font_size_override("font_size", 14)
-	if is_selected:
-		label.add_theme_color_override("font_color", Color.GOLD)
-	vbox.add_child(label)
+	# var label = Label.new()
+	# label.text = shape_res.shape_name
+	# label.add_theme_font_size_override("font_size", 14)
+	# if is_selected:
+	# 	label.add_theme_color_override("font_color", Color.GOLD)
+	# vbox.add_child(label)
 	
 	# 状态/内容描述
 	var status_label = Label.new()
@@ -92,7 +92,7 @@ func _create_item_ui(shape_res: SelectorShape, cache: Variant, is_selected: bool
 	else:
 		status_label.text = "待选取"
 		status_label.add_theme_color_override("font_color", Color.GRAY)
-	vbox.add_child(status_label)
+	hbox.add_child(status_label)
 	
 	return panel
 
