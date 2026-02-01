@@ -3,7 +3,7 @@ extends Node2D
 
 enum Mode { INTERACT, SELECT, MOVE }
 
-const SHAPES: Array[Array] = [
+const DEFAULT_SHAPES: Array[Array] = [
 	[Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0)], # I
 	[Vector2i(0, 0), Vector2i(1, 0), Vector2i(0, 1), Vector2i(1, 1)], # O
 	[Vector2i(1, 0), Vector2i(0, 1), Vector2i(1, 1), Vector2i(2, 1)], # T
@@ -21,6 +21,7 @@ var current_mode: Mode = Mode.INTERACT:
 		current_mode = value
 		_on_mode_changed()
 
+var active_shapes: Array[Array] = DEFAULT_SHAPES
 var active_shape_index: int = 0
 
 # Array of TileDataInfo or similar
@@ -44,9 +45,18 @@ func _ready() -> void:
 	btn_move.pressed.connect(func(): current_mode = Mode.MOVE)
 
 ## 设置当前操作的地图层
-func setup_layers(terrain: TileMapLayer, elements: TileMapLayer) -> void:
+func setup_layers(terrain: TileMapLayer, elements: TileMapLayer, shapes: Array[SelectorShape] = []) -> void:
 	terrain_layer = terrain
 	elements_layer = elements
+	
+	if not shapes.is_empty():
+		active_shapes = []
+		for s in shapes:
+			active_shapes.append(s.cells)
+	else:
+		active_shapes = DEFAULT_SHAPES
+	
+	active_shape_index = 0
 	
 	if terrain_layer:
 		_setup_preview_layer()
@@ -88,10 +98,10 @@ func _input(event: InputEvent) -> void:
 			current_mode = Mode.MOVE
 		elif current_mode == Mode.SELECT:
 			if event.keycode == KEY_Q:
-				active_shape_index = (active_shape_index - 1 + SHAPES.size()) % SHAPES.size()
+				active_shape_index = (active_shape_index - 1 + active_shapes.size()) % active_shapes.size()
 				_update_overlay()
 			elif event.keycode == KEY_E:
-				active_shape_index = (active_shape_index + 1) % SHAPES.size()
+				active_shape_index = (active_shape_index + 1) % active_shapes.size()
 				_update_overlay()
 
 	if current_mode == Mode.INTERACT:
@@ -103,7 +113,7 @@ func _input(event: InputEvent) -> void:
 
 		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 			if current_mode == Mode.SELECT:
-				var current_shape: Array = SHAPES[active_shape_index]
+				var current_shape: Array = active_shapes[active_shape_index]
 				_capture_selection(map_pos, current_shape)
 			
 			elif current_mode == Mode.MOVE:
@@ -269,7 +279,7 @@ func _on_overlay_draw():
 	if current_mode == Mode.SELECT:
 		var mouse_pos = get_global_mouse_position()
 		var map_pos = terrain_layer.local_to_map(terrain_layer.to_local(mouse_pos))
-		var offsets = SHAPES[active_shape_index]
+		var offsets = active_shapes[active_shape_index]
 		_draw_shape_outline(map_pos, offsets, Color.YELLOW, 2.0)
 	
 	elif current_mode == Mode.MOVE:

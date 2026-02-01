@@ -136,6 +136,10 @@ func center_level() -> void:
 func _setup_systems(level: Node2D) -> void:
 	var terrain = level.get_node_or_null("Terrain")
 	var elements = level.get_node_or_null("Elements")
+	var shapes: Array[SelectorShape] = []
+	
+	if level is Level:
+		shapes = level.available_shapes
 	
 	if viewfinder_system:
-		viewfinder_system.setup_layers(terrain, elements)
+		viewfinder_system.setup_layers(terrain, elements, shapes)
