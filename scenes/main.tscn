@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://dvk3jg56dxbmp"]
+[gd_scene load_steps=5 format=3 uid="uid://dvk3jg56dxbmp"]
 
 [ext_resource type="Script" uid="uid://bfh2pqvdsqb0l" path="res://scenes/main.gd" id="1_main"]
 [ext_resource type="PackedScene" uid="uid://d1c5btbar4bfe" path="res://content/levels/level_2_33.tscn" id="2_sugp2"]
 [ext_resource type="PackedScene" uid="uid://bfvtfqii1ytgf" path="res://scenes/viewfinder/viewfinder_system.tscn" id="2_vfs"]
+[ext_resource type="Texture2D" uid="uid://cwyw7tog31de7" path="res://art/ui/WasdKeys1.png" id="4_jyhfs"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_main")
@@ -23,3 +24,23 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 1)
+
+[node name="CanvasLayer2" type="CanvasLayer" parent="."]
+layer = -1
+
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer2"]
+custom_minimum_size = Vector2(256, 256)
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -224.0
+offset_top = -192.0
+offset_right = 32.0
+offset_bottom = 64.0
+grow_horizontal = 0
+grow_vertical = 0
+texture = ExtResource("4_jyhfs")
+expand_mode = 1
+stretch_mode = 5

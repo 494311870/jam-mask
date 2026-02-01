@@ -116,14 +116,14 @@ func _on_mode_changed():
 
 	match current_mode:
 		Mode.INTERACT:
-			label_status.text = "当前模式: 交互 (Q/E 进入选取模式)"
+			label_status.text = "Q/E 使用提取器"
 		Mode.SELECT:
 			if active_shapes.is_empty():
-				label_status.text = "选取模式: 已无可用形状"
+				label_status.text = "已无可用的提取器"
 			else:
-				label_status.text = "选取模式 (%d/%d): 左键取景 (Q/E 切换形状，右键退出)" % [active_shape_index + 1, active_shapes.size()]
+				label_status.text = "(%d/%d) 左键提取 (Q/E 切换形状，右键退出)" % [active_shape_index + 1, active_shapes.size()]
 		Mode.MOVE:
-			label_status.text = "移动模式 (%d/%d): 左键放置地形 (右键取消)" % [active_shape_index + 1, active_shapes.size()]
+			label_status.text = "(%d/%d) 左键放置地形 (右键取消)" % [active_shape_index + 1, active_shapes.size()]
 	
 	# Update button visual state (optional: modulate or theme)
 	btn_interact.release_focus()
