@@ -3,6 +3,10 @@
 [ext_resource type="Script" uid="uid://bfh2pqvdsqb0l" path="res://scenes/main.gd" id="1_main"]
 [ext_resource type="PackedScene" uid="uid://bfvtfqii1ytgf" path="res://scenes/viewfinder/viewfinder_system.tscn" id="2_vfs"]
 [ext_resource type="Texture2D" uid="uid://cwyw7tog31de7" path="res://art/ui/WasdKeys1.png" id="4_jyhfs"]
+[ext_resource type="AudioStream" uid="uid://dmib4rfpoqlrv" path="res://art/audio/DavidKBD - Tropical Pack - 03 - Heartbeats - Bossanova.ogg" id="5_tbgi4"]
+[ext_resource type="Script" uid="uid://dqhtv8otmp3dc" path="res://scenes/main_ui.gd" id="6_main_ui"]
+[ext_resource type="Texture2D" uid="uid://bwhskl0nr5eqt" path="res://art/ui/DoubleCircleArrows1.png" id="7_restart_icon"]
+[ext_resource type="Texture2D" uid="uid://bfd3yfqef0wpd" path="res://art/ui/Music-On.png" id="8_music_on"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_main")
@@ -42,3 +46,63 @@ grow_vertical = 0
 texture = ExtResource("4_jyhfs")
 expand_mode = 1
 stretch_mode = 5
+
+[node name="MainUI" type="CanvasLayer" parent="."]
+script = ExtResource("6_main_ui")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MainUI"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -70.0
+offset_top = 70.0
+offset_right = -10.0
+offset_bottom = 190.0
+grow_horizontal = 0
+theme_override_constants/separation = 10
+
+[node name="BtnRestart" type="Button" parent="MainUI/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(54, 54)
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="MainUI/VBoxContainer/BtnRestart"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("7_restart_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="BtnAudio" type="Button" parent="MainUI/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(54, 54)
+layout_mode = 2
+toggle_mode = true
+button_pressed = true
+
+[node name="MusicIcon" type="TextureRect" parent="MainUI/VBoxContainer/BtnAudio"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(30, 27)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -15.0
+offset_top = -13.5
+offset_right = 15.0
+offset_bottom = 13.5
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("8_music_on")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("5_tbgi4")
+autoplay = true
