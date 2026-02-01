@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://dvk3jg56dxbmp"]
+[gd_scene load_steps=10 format=3 uid="uid://dvk3jg56dxbmp"]
 
 [ext_resource type="Script" uid="uid://bfh2pqvdsqb0l" path="res://scenes/main.gd" id="1_main"]
 [ext_resource type="PackedScene" uid="uid://bfvtfqii1ytgf" path="res://scenes/viewfinder/viewfinder_system.tscn" id="2_vfs"]
@@ -7,6 +7,8 @@
 [ext_resource type="Script" uid="uid://dqhtv8otmp3dc" path="res://scenes/main_ui.gd" id="6_main_ui"]
 [ext_resource type="Texture2D" uid="uid://bwhskl0nr5eqt" path="res://art/ui/DoubleCircleArrows1.png" id="7_restart_icon"]
 [ext_resource type="Texture2D" uid="uid://bfd3yfqef0wpd" path="res://art/ui/Music-On.png" id="8_music_on"]
+[ext_resource type="PackedScene" uid="uid://c6y7v8u8q4b6v" path="res://scenes/main_menu.tscn" id="9_menu"]
+[ext_resource type="PackedScene" uid="uid://b8y7v8u8q4b6v" path="res://scenes/level_selection.tscn" id="10_levels"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_main")
@@ -76,6 +78,13 @@ grow_vertical = 2
 texture = ExtResource("7_restart_icon")
 expand_mode = 1
 stretch_mode = 5
+
+[node name="BtnMenu" type="Button" parent="MainUI/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(54, 54)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "MENU"
 
 [node name="BtnAudio" type="Button" parent="MainUI/VBoxContainer"]
 unique_name_in_owner = true
